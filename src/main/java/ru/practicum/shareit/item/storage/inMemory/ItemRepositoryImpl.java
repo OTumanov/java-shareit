@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
@@ -37,7 +36,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
-        if(userService.getUserById(userId) == null) {
+        if (userService.getUserById(userId) == null) {
             throw new IllegalArgumentException("Пользователь не найден!");
         }
         for (Item i : allItems.values()) {
