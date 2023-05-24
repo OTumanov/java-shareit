@@ -16,7 +16,6 @@ import lombok.Data;
 
 @Data
 @Builder
-@AllArgsConstructor
 public class Item {
     private Long id;
     private String name;
