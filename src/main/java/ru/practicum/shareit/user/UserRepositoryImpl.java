@@ -67,8 +67,8 @@ public class UserRepositoryImpl implements UserRepository {
             updatedUser.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
-            for(User u : allUsers.values()) {
-                if (u.getEmail().equals(userDto.getEmail()) && (u.getId() != userId)) {
+            for (User u : allUsers.values()) {
+                if (u.getEmail().equals(userDto.getEmail()) && (!u.getId().equals(userId))) {
                     throw new IllegalArgumentException("Пользователь с email = " + userDto.getEmail() + " уже существует!");
                 }
             }
