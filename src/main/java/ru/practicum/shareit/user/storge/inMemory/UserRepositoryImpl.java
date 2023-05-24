@@ -1,6 +1,10 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.storge.inMemory;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.storge.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository {
+class UserRepositoryImpl implements UserRepository {
     Map<Long, User> allUsers = new HashMap<>();
     Long nextId = 0L;
 
@@ -39,6 +43,7 @@ public class UserRepositoryImpl implements UserRepository {
         User newUser = UserMapper.toUser(userDto);
         newUser.setId(++nextId);
         allUsers.put(newUser.getId(), newUser);
+
         return UserMapper.toDto(newUser);
     }
 
@@ -49,6 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
         User updatedUser = updateUserFromDtoUser(userId, userDto);
         allUsers.put(updatedUser.getId(), updatedUser);
+
         return UserMapper.toDto(updatedUser);
     }
 
@@ -75,6 +81,7 @@ public class UserRepositoryImpl implements UserRepository {
             updatedUser.setEmail(userDto.getEmail());
         }
         updatedUser.setId(userId);
+
         return updatedUser;
     }
 }
