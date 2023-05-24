@@ -1,12 +1,47 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * TODO Sprint add-controllers.
- */
+import javax.validation.Valid;
+import java.util.List;
+
+@Slf4j
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
+    private final UserService userService;
+
+    @GetMapping("/{id}")
+    public UserDto getUserById(@PathVariable Long id) {
+        log.info("Получен запрос на получение пользователя с id = {}", id);
+        return userService.getUserById(id);
+    }
+
+    @GetMapping
+    public List<UserDto> getAllUsers() {
+        log.info("Получен запрос на получение всех пользователей");
+        return userService.getAllUsers();
+    }
+
+    @PostMapping
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+        log.info("Получен запрос на создание пользователя");
+        return userService.createUser(userDto);
+    }
+
+    @PatchMapping({"/{userId}"})
+    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
+        log.info("Получен запрос на обновление пользователя с id = {}", userId);
+        return userService.updateUser(userId, userDto);
+    }
+
+    @DeleteMapping({"/{userId}"})
+    public void deleteUser(@PathVariable Long userId) {
+        log.info("Получен запрос на удаление пользователя с id = {}", userId);
+        userService.deleteUser(userId);
+    }
 }
