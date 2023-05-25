@@ -24,20 +24,20 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
-        log.info("Запрос всех вещей с пользователем id = {}", userId);
+        log.info("Запрос всех вещей пользователя с id = {}", userId);
         return ItemMapper.toItemDtoList(itemService.getAllItems(userId));
     }
 
     @PostMapping
     public ItemDto createItem(@RequestBody ItemDto itemDto, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос на создание вещи");
-        return itemService.createItem(itemDto, userId);
+        return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId, @RequestHeader(name = "X-Sharer-User-Id") Long userId, @RequestBody ItemDto itemDto) {
         log.info("Запрос на обновление вещи с id = {}", itemId);
-        return itemService.updateItem(itemId, userId, itemDto);
+        return ItemMapper.toItemDto(itemService.updateItem(itemId, userId, ItemMapper.toItem(itemDto)));
     }
 
     @DeleteMapping("/{itemId}")
@@ -52,7 +52,7 @@ public class ItemController {
         // в постмане передается id пользователя. Пусть он будет в таком случае в данном методе.
         // Может, когда-то пригодится ))
         log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
-        return itemService.searchItems(text, userId);
+        return ItemMapper.toItemDtoList(itemService.searchItems(text, userId));
     }
 
 }

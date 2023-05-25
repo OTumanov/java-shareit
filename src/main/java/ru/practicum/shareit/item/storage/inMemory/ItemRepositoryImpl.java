@@ -5,10 +5,8 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.model.AccessException;
 import ru.practicum.shareit.exceptions.model.ConflictException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
-import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
@@ -41,41 +39,38 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, Long userId) {
+    public Item createItem(Item item, Long userId) {
         userService.getUserById(userId);
-        checkItemAvailable(itemDto);
-        checkItemName(itemDto);
-        checkDescription(itemDto);
+        checkItemAvailable(item);
+        checkItemName(item);
+        checkDescription(item);
+        item.setId(++nextId);
+        item.setOwner(userId);
+        allItems.put(item.getId(), item);
 
-        Item newItem = ItemMapper.toItem(itemDto);
-
-        newItem.setId(++nextId);
-        newItem.setOwner(userId);
-        allItems.put(newItem.getId(), newItem);
-
-        return ItemMapper.toItemDto(newItem);
+        return allItems.get(item.getId());
     }
 
     @Override
-    public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
+    public Item updateItem(Long itemId, Long userId, Item item) {
         checkItem(itemId);
         checkOwnerOfItem(itemId, userId);
 
         Item updatedItem = allItems.get(itemId);
 
-        if (!(itemDto.getName() == null)) {
-            updatedItem.setName(itemDto.getName());
+        if (!(item.getName() == null)) {
+            updatedItem.setName(item.getName());
         }
 
-        if (!(itemDto.getDescription() == null)) {
-            updatedItem.setDescription(itemDto.getDescription());
+        if (!(item.getDescription() == null)) {
+            updatedItem.setDescription(item.getDescription());
         }
 
-        if (itemDto.getAvailable() != null) {
-            updatedItem.setAvailable(itemDto.getAvailable());
+        if (item.getAvailable() != null) {
+            updatedItem.setAvailable(item.getAvailable());
         }
 
-        return ItemMapper.toItemDto(updatedItem);
+        return updatedItem;
     }
 
     @Override
@@ -85,17 +80,17 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text, Long userId) {
+    public List<Item> searchItems(String text, Long userId) {
         if (text.isBlank()) {
             return new ArrayList<>();
         } else {
-            List<ItemDto> result = new ArrayList<>();
+            List<Item> result = new ArrayList<>();
 
             for (Item i : allItems.values()) {
                 if (i.getName().toLowerCase().contains(text.toLowerCase())
                         || i.getDescription().toLowerCase().contains(text.toLowerCase())
                         && i.getAvailable()) {
-                    result.add(ItemMapper.toItemDto(i));
+                    result.add(i);
                 }
             }
             return result;
@@ -108,23 +103,23 @@ public class ItemRepositoryImpl implements ItemRepository {
         }
     }
 
-    private void checkItemAvailable(ItemDto itemDto) {
-        if (itemDto.getAvailable() == null) {
+    private void checkItemAvailable(Item item) {
+        if (item.getAvailable() == null) {
             throw new ValidationException("Вещь не доступна!");
         }
     }
 
-    private void checkItemName(ItemDto itemDto) {
-        if (itemDto.getName() == null) {
+    private void checkItemName(Item item) {
+        if (item.getName() == null) {
             throw new ConflictException("Вещь не может быть безымянной!");
         }
-        if (itemDto.getName().isEmpty() || itemDto.getName().isBlank()) {
+        if (item.getName().isEmpty() || item.getName().isBlank()) {
             throw new ValidationException("Поле имени должно быть заполнено!");
         }
     }
 
-    private void checkDescription(ItemDto itemDto) {
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
+    private void checkDescription(Item item) {
+        if (item.getDescription() == null || item.getDescription().isBlank()) {
             throw new ValidationException("Отсутствует описание!");
         }
     }
