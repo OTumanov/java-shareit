@@ -5,6 +5,7 @@ import lombok.Data;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -27,8 +28,10 @@ public class UserMapper {
     }
 
     public static List<UserDto> toDtoList(List<User> allUsers) {
-        return allUsers.stream()
-                .map(UserMapper::toDto)
-                .toList();
+        List<UserDto> result = new ArrayList<>();
+        for (User u : allUsers) {
+            result.add(toDto(u));
+        }
+        return result;
     }
 }

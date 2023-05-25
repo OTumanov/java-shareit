@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.storge.inMemory;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.model.ConflictException;
-import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.exceptions.model.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storge.UserRepository;
 
@@ -19,7 +19,7 @@ class UserRepositoryImpl implements UserRepository {
     @Override
     public User getUserById(Long id) {
         if (!allUsers.containsKey(id)) {
-            throw new NotFoundException("Пользователь с id = " + id + " не найден");
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
         return allUsers.get(id);
     }
@@ -50,15 +50,8 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteUser(Long userId) {
-        userFound(userId);
+        getUserById(userId);
         allUsers.remove(userId);
-    }
-
-
-    private void userFound(Long userId) {
-        if (!allUsers.containsKey(userId)) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
-        }
     }
 
     private void checkUserWithEmail(User user1, User user2) {
