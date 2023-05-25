@@ -18,8 +18,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItems() {
-        return itemRepository.getAllItems();
+    public List<ItemDto> getAllItems(Long userId) {
+        return itemRepository.getAllItems(userId);
     }
 
     @Override
@@ -35,5 +35,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void deleteItem(Long itemId) {
         itemRepository.deleteItem(itemId);
+    }
+
+    @Override
+    public List<ItemDto> searchItems(String text, Long userId) {
+        return itemRepository.searchItems(text, userId);
     }
 }

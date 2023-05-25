@@ -22,9 +22,9 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems() {
-        log.info("Запрос всех вещей");
-        return itemService.getAllItems();
+    public List<ItemDto> getAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        log.info("Запрос всех вещей с пользователем id = {}", userId);
+        return itemService.getAllItems(userId);
     }
 
     @PostMapping
@@ -44,4 +44,11 @@ public class ItemController {
         log.info("Запрос на удаление вещи с id = {}", itemId);
         itemService.deleteItem(itemId);
     }
+
+    @GetMapping("/search")
+    public List<ItemDto> searchItems(@RequestParam String text, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
+        return itemService.searchItems(text, userId);
+    }
+
 }

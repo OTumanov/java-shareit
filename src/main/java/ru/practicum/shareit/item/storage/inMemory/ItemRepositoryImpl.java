@@ -30,10 +30,12 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<ItemDto> getAllItems() {
+    public List<ItemDto> getAllItems(Long userId) {
         List<ItemDto> result = new ArrayList<>();
         for (Item i : allItems.values()) {
-            result.add(ItemMapper.toItemDto(i));
+            if (i.getOwner().equals(userId)) {
+                result.add(ItemMapper.toItemDto(i));
+            }
         }
         return result;
     }
@@ -44,14 +46,12 @@ public class ItemRepositoryImpl implements ItemRepository {
         checkItemAvailable(itemDto);
         checkItemName(itemDto);
         checkDescription(itemDto);
-//        for (Item i : allItems.values()) {
-//            checkItemDuplicate(itemDto);
-//        }
 
         Item newItem = ItemMapper.toItem(itemDto);
         newItem.setId(++nextId);
         newItem.setOwner(userId);
         allItems.put(newItem.getId(), newItem);
+
         return ItemMapper.toItemDto(newItem);
     }
 
@@ -82,17 +82,29 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     }
 
+    @Override
+    public List<ItemDto> searchItems(String text, Long userId) {
+        if (text.isBlank()) {
+            return new ArrayList<>();
+        } else {
+            List<ItemDto> result = new ArrayList<>();
+
+            for (Item i : allItems.values()) {
+                if (i.getName().toLowerCase().contains(text.toLowerCase())
+                        || i.getDescription().toLowerCase().contains(text.toLowerCase())
+                        && i.getAvailable()) {
+                    result.add(ItemMapper.toItemDto(i));
+                }
+            }
+            return result;
+        }
+    }
+
     private void checkItem(Long itemId) {
         if (allItems.get(itemId) == null) {
             throw new NotFoundException("Такая вещь не найдена!");
         }
     }
-
-//    private void checkItemDuplicate(ItemDto itemDto) {
-//        if (itemDto.getName().equals(itemDto.getName())) {
-//            throw new ConflictException("Вещь с именем = " + itemDto.getName() + " уже существует!");
-//        }
-//    }
 
     private void checkItemAvailable(ItemDto itemDto) {
         if (itemDto.getAvailable() == null) {

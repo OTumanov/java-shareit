@@ -7,7 +7,7 @@ import java.util.List;
 public interface ItemService {
     ItemDto getItemById(Long itemId);
 
-    List<ItemDto> getAllItems();
+    List<ItemDto> getAllItems(Long userId);
 
     ItemDto createItem(ItemDto itemDto, Long userId);
 
@@ -15,4 +15,5 @@ public interface ItemService {
 
     void deleteItem(Long itemId);
 
+    List<ItemDto> searchItems(String text, Long userId);
 }
