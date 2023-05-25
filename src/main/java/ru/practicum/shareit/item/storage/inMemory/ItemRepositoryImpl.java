@@ -24,6 +24,39 @@ public class ItemRepositoryImpl implements ItemRepository {
     Map<Long, Item> allItems = new HashMap<>();
     Long nextId = 0L;
 
+    private void checkItem(Long itemId) {
+        if (allItems.get(itemId) == null) {
+            throw new NotFoundException("Такая вещь не найдена!");
+        }
+    }
+
+    private void checkItemAvailable(ItemDto itemDto) {
+        if (itemDto.getAvailable() == null) {
+            throw new ValidationException("Вещь не доступна!");
+        }
+    }
+
+    private void checkItemName(ItemDto itemDto) {
+        if (itemDto.getName() == null) {
+            throw new ConflictException("Вещь не может быть безымянной!");
+        }
+        if (itemDto.getName().isEmpty() || itemDto.getName().isBlank()) {
+            throw new ValidationException("Поле имени должно быть заполнено!");
+        }
+    }
+
+    private void checkDescription(ItemDto itemDto) {
+        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
+            throw new ValidationException("Отсутствует описание!");
+        }
+    }
+
+    private void checkOwnerOfItem(Long itemDto, Long userId) {
+        if (!allItems.get(itemDto).getOwner().equals(userId)) {
+            throw new AccessException("Вещь не принадлежит данному пользователю!");
+        }
+    }
+
     @Override
     public ItemDto getItemById(Long itemId) {
         return ItemMapper.toItemDto(allItems.get(itemId));
@@ -48,6 +81,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         checkDescription(itemDto);
 
         Item newItem = ItemMapper.toItem(itemDto);
+
         newItem.setId(++nextId);
         newItem.setOwner(userId);
         allItems.put(newItem.getId(), newItem);
@@ -79,7 +113,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public void deleteItem(Long itemId) {
-
+        checkItem(itemId);
+        allItems.remove(itemId);
     }
 
     @Override
@@ -97,39 +132,6 @@ public class ItemRepositoryImpl implements ItemRepository {
                 }
             }
             return result;
-        }
-    }
-
-    private void checkItem(Long itemId) {
-        if (allItems.get(itemId) == null) {
-            throw new NotFoundException("Такая вещь не найдена!");
-        }
-    }
-
-    private void checkItemAvailable(ItemDto itemDto) {
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Вещь не доступна!");
-        }
-    }
-
-    private void checkItemName(ItemDto itemDto) {
-        if (itemDto.getName() == null) {
-            throw new ConflictException("Вещь не может быть безымянной!");
-        }
-        if (itemDto.getName().isEmpty() || itemDto.getName().isBlank()) {
-            throw new ValidationException("Поле имени должно быть заполнено!");
-        }
-    }
-
-    private void checkDescription(ItemDto itemDto) {
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Отсутствует описание!");
-        }
-    }
-
-    private void checkOwnerOfItem(Long itemDto, Long userId) {
-        if (!allItems.get(itemDto).getOwner().equals(userId)) {
-            throw new AccessException("Вещь не принадлежит данному пользователю!");
         }
     }
 }

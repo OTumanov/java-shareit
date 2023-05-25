@@ -10,8 +10,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class UserDto {
     private Long id;
-
-    @NotNull(message = "Поле name не может быть пустым")
     private String name;
 
     @Email(message = "Некорректный email")

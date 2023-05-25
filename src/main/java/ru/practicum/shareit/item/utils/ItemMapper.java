@@ -14,29 +14,9 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDto(Item item, Long itemId) {
-        return ItemDto.builder()
-                .id(itemId)
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .owner(item.getOwner())
-                .build();
-    }
-
     public static Item toItem(ItemDto itemDto) {
         return Item.builder()
                 .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .owner(itemDto.getOwner())
-                .build();
-    }
-
-    public static Item toItem(ItemDto itemDto, Long itemId) {
-        return Item.builder()
-                .id(itemId)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())

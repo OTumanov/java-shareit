@@ -7,12 +7,15 @@ import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exceptions.model.*;
+import ru.practicum.shareit.exceptions.model.AccessException;
+import ru.practicum.shareit.exceptions.model.ConflictException;
+import ru.practicum.shareit.exceptions.model.ErrorResponse;
+import ru.practicum.shareit.exceptions.model.NotFoundException;
 
 import javax.validation.ValidationException;
 
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler
@@ -23,30 +26,9 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateEmail(final ConflictException exception) {
-        log.warn("409 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUnknownDataException(NotFoundException exception) {
-        log.warn("404 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handlerAccessException(final AccessException exception) {
-        log.warn("403 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Exception exception) {
-        log.warn("500 {}", exception.getMessage());
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnknownDataException(MissingRequestValueException exception) {
+        log.warn("400 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
 
@@ -58,9 +40,30 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleUnknownDataException(MissingRequestValueException exception) {
-        log.warn("400 {}", exception.getMessage());
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handlerAccessException(final AccessException exception) {
+        log.warn("403 {}", exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUnknownDataException(NotFoundException exception) {
+        log.warn("404 {}", exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateEmail(final ConflictException exception) {
+        log.warn("409 {}", exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleThrowable(final Exception exception) {
+        log.warn("500 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
 

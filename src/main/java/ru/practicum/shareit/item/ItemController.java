@@ -47,6 +47,9 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        // На самом деле не очень ясно зачем в заголовке запроса во время тестирования
+        // в постмане передается id пользователя. Пусть он будет в таком случае в данном методе.
+        // Может, когда-то пригодится ))
         log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
         return itemService.searchItems(text, userId);
     }
