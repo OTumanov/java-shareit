@@ -28,8 +28,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(Long itemId, ItemDto itemDto) {
-        return itemRepository.updateItem(itemId, itemDto);
+    public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
+        return itemRepository.updateItem(itemId, userId, itemDto);
     }
 
     @Override

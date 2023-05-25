@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user.storge.inMemory;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exceptions.model.ConflictException;
+import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storge.UserRepository;
@@ -18,9 +20,7 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserDto getUserById(Long id) {
-        if (!allUsers.containsKey(id)) {
-            throw new IllegalArgumentException("Пользователь с id = " + id + " не найден");
-        }
+        userFound(id);
         return UserMapper.toDto(allUsers.get(id));
     }
 
@@ -36,9 +36,7 @@ class UserRepositoryImpl implements UserRepository {
     @Override
     public UserDto createUser(UserDto userDto) {
         for (User u : allUsers.values()) {
-            if (u.getEmail().equals(userDto.getEmail())) {
-                throw new IllegalArgumentException("Пользователь с email = " + userDto.getEmail() + " уже существует!");
-            }
+            checkUserWithEmail(u, userDto);
         }
         User newUser = UserMapper.toUser(userDto);
         newUser.setId(++nextId);
@@ -49,9 +47,7 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserDto updateUser(Long userId, UserDto userDto) {
-        if (!allUsers.containsKey(userId)) {
-            throw new IllegalArgumentException("Пользователь с id = " + userId + " не найден!");
-        }
+        userFound(userId);
         User updatedUser = updateUserFromDtoUser(userId, userDto);
         allUsers.put(updatedUser.getId(), updatedUser);
 
@@ -60,9 +56,7 @@ class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteUser(Long userId) {
-        if (!allUsers.containsKey(userId)) {
-            throw new IllegalArgumentException("Пользователь с id = " + userId + " не найден!");
-        }
+        userFound(userId);
         allUsers.remove(userId);
     }
 
@@ -74,14 +68,30 @@ class UserRepositoryImpl implements UserRepository {
         }
         if (userDto.getEmail() != null) {
             for (User u : allUsers.values()) {
-                if (u.getEmail().equals(userDto.getEmail()) && (!u.getId().equals(userId))) {
-                    throw new IllegalArgumentException("Пользователь с email = " + userDto.getEmail() + " уже существует!");
-                }
+                checkUserDuplicateEmail(u, userId, userDto);
             }
             updatedUser.setEmail(userDto.getEmail());
         }
         updatedUser.setId(userId);
 
         return updatedUser;
+    }
+
+    private void userFound(Long userId) {
+        if (!allUsers.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+    }
+
+    private void checkUserWithEmail(User user, UserDto userDto) {
+        if (user.getEmail().equals(userDto.getEmail())) {
+            throw new ConflictException("Пользователь с email = " + userDto.getEmail() + " уже существует!");
+        }
+    }
+
+    private void checkUserDuplicateEmail(User user, Long userId, UserDto userDto) {
+        if (user.getEmail().equals(userDto.getEmail()) && (!user.getId().equals(userId))) {
+            throw new IllegalArgumentException("Пользователь с email = " + userDto.getEmail() + " уже существует!");
+        }
     }
 }
