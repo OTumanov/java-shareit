@@ -24,50 +24,17 @@ public class ItemRepositoryImpl implements ItemRepository {
     Map<Long, Item> allItems = new HashMap<>();
     Long nextId = 0L;
 
-    private void checkItem(Long itemId) {
-        if (allItems.get(itemId) == null) {
-            throw new NotFoundException("Такая вещь не найдена!");
-        }
-    }
-
-    private void checkItemAvailable(ItemDto itemDto) {
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Вещь не доступна!");
-        }
-    }
-
-    private void checkItemName(ItemDto itemDto) {
-        if (itemDto.getName() == null) {
-            throw new ConflictException("Вещь не может быть безымянной!");
-        }
-        if (itemDto.getName().isEmpty() || itemDto.getName().isBlank()) {
-            throw new ValidationException("Поле имени должно быть заполнено!");
-        }
-    }
-
-    private void checkDescription(ItemDto itemDto) {
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Отсутствует описание!");
-        }
-    }
-
-    private void checkOwnerOfItem(Long itemDto, Long userId) {
-        if (!allItems.get(itemDto).getOwner().equals(userId)) {
-            throw new AccessException("Вещь не принадлежит данному пользователю!");
-        }
+    @Override
+    public Item getItemById(Long itemId) {
+        return allItems.get(itemId);
     }
 
     @Override
-    public ItemDto getItemById(Long itemId) {
-        return ItemMapper.toItemDto(allItems.get(itemId));
-    }
-
-    @Override
-    public List<ItemDto> getAllItems(Long userId) {
-        List<ItemDto> result = new ArrayList<>();
+    public List<Item> getAllItems(Long userId) {
+        List<Item> result = new ArrayList<>();
         for (Item i : allItems.values()) {
             if (i.getOwner().equals(userId)) {
-                result.add(ItemMapper.toItemDto(i));
+                result.add(i);
             }
         }
         return result;
@@ -132,6 +99,39 @@ public class ItemRepositoryImpl implements ItemRepository {
                 }
             }
             return result;
+        }
+    }
+
+    private void checkItem(Long itemId) {
+        if (allItems.get(itemId) == null) {
+            throw new NotFoundException("Такая вещь не найдена!");
+        }
+    }
+
+    private void checkItemAvailable(ItemDto itemDto) {
+        if (itemDto.getAvailable() == null) {
+            throw new ValidationException("Вещь не доступна!");
+        }
+    }
+
+    private void checkItemName(ItemDto itemDto) {
+        if (itemDto.getName() == null) {
+            throw new ConflictException("Вещь не может быть безымянной!");
+        }
+        if (itemDto.getName().isEmpty() || itemDto.getName().isBlank()) {
+            throw new ValidationException("Поле имени должно быть заполнено!");
+        }
+    }
+
+    private void checkDescription(ItemDto itemDto) {
+        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
+            throw new ValidationException("Отсутствует описание!");
+        }
+    }
+
+    private void checkOwnerOfItem(Long itemDto, Long userId) {
+        if (!allItems.get(itemDto).getOwner().equals(userId)) {
+            throw new AccessException("Вещь не принадлежит данному пользователю!");
         }
     }
 }

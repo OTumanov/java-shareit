@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.utils.ItemMapper;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId) {
         log.info("Запрос вещи с id = {}", itemId);
-        return itemService.getItemById(itemId);
+        return ItemMapper.toItemDto(itemService.getItemById(itemId));
     }
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос всех вещей с пользователем id = {}", userId);
-        return itemService.getAllItems(userId);
+        return ItemMapper.toItemDtoList(itemService.getAllItems(userId));
     }
 
     @PostMapping

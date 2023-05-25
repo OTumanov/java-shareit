@@ -5,6 +5,8 @@ import lombok.Data;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+
 @Data
 @Builder
 public class UserMapper {
@@ -22,5 +24,11 @@ public class UserMapper {
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();
+    }
+
+    public static List<UserDto> toDtoList(List<User> allUsers) {
+        return allUsers.stream()
+                .map(UserMapper::toDto)
+                .toList();
     }
 }
