@@ -40,7 +40,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item createItem(Item item, Long userId) {
-        userService.getUserById(userId);
+        userService.findUserById(userId);
         checkItemAvailable(item);
         checkItemName(item);
         checkDescription(item);
