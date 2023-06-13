@@ -3,15 +3,21 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.*;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingPost;
+import ru.practicum.shareit.booking.model.BookingPostResponse;
+import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.exceptions.model.AccessException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
 import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storge.UserRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -127,7 +133,29 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingPostResponse createBooking(BookingPost bookingPost, Long userId) {
-        return null;
+        userRepository.findById(userId);
+
+        if (!bookingPost.getStart().isBefore(bookingPost.getEnd())) {
+            throw new IllegalArgumentException("Время начала -- " + bookingPost.getStart() + " не может быть раньше времени завершения -- " + bookingPost.getEnd());
+        }
+
+        if (userId.equals(itemRepository.findById(bookingPost.getItemId()).get().getOwnerId())) {
+            throw new ValidationException("Нельзя забронировать свою же вещь");
+        }
+
+        if (bookingRepository.findById(bookingPost.getItemId()).isPresent()) {
+            throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
+        }
+
+        Booking booking = Booking.builder()
+                .start(bookingPost.getStart())
+                .end(bookingPost.getEnd())
+                .booker(userRepository.findById(userId).get())
+                .item(itemRepository.findById(bookingPost.getItemId()).get())
+                .status(WAITING)
+                .build();
+        bookingRepository.save(booking);
+        return BookingMapper.toPostResponseDto(booking, item);
     }
 
     @Override
