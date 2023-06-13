@@ -6,10 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exceptions.model.AccessException;
-import ru.practicum.shareit.exceptions.model.ErrorResponse;
-import ru.practicum.shareit.exceptions.model.NotFoundException;
-import ru.practicum.shareit.exceptions.model.UserNotFoundException;
+import ru.practicum.shareit.exceptions.model.*;
 
 import javax.validation.ValidationException;
 
@@ -20,6 +17,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(ValidationException exception) {
+        log.warn("400 {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(UnsupportedStatusException exception) {
         log.warn("400 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
