@@ -31,7 +31,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> getAllItems(Long userId) {
         List<Item> result = new ArrayList<>();
         for (Item i : allItems.values()) {
-            if (i.getOwner().equals(userId)) {
+            if (i.getOwnerId().equals(userId)) {
                 result.add(i);
             }
         }
@@ -45,7 +45,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         checkItemName(item);
         checkDescription(item);
         item.setId(++nextId);
-        item.setOwner(userId);
+        item.setOwnerId(userId);
         allItems.put(item.getId(), item);
 
         return allItems.get(item.getId());
@@ -125,7 +125,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     private void checkOwnerOfItem(Long itemDto, Long userId) {
-        if (!allItems.get(itemDto).getOwner().equals(userId)) {
+        if (!allItems.get(itemDto).getOwnerId().equals(userId)) {
             throw new AccessException("Вещь не принадлежит данному пользователю!");
         }
     }
