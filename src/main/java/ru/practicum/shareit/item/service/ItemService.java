@@ -7,7 +7,7 @@ import java.util.List;
 public interface ItemService {
     Item getItemById(Long itemId);
 
-    List<Item> getAllItems(Long userId);
+    List<Item> findAllItemsByUserId(Long userId);
 
     Item createItem(Item item, Long userId);
 
@@ -15,5 +15,5 @@ public interface ItemService {
 
     void deleteItem(Long itemId);
 
-    List<Item> searchItems(String text, Long userId);
+    List<Item> searchItemByText(String text, Long userId);
 }

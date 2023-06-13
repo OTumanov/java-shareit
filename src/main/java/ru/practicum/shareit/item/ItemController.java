@@ -25,7 +25,7 @@ public class ItemController {
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос всех вещей пользователя с id = {}", userId);
-        return ItemMapper.toItemDtoList(itemService.getAllItems(userId));
+        return ItemMapper.toItemDtoList(itemService.findAllItemsByUserId(userId));
     }
 
     @PostMapping
@@ -49,7 +49,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
-        return ItemMapper.toItemDtoList(itemService.searchItems(text, userId));
+        return ItemMapper.toItemDtoList(itemService.searchItemByText(text, userId));
     }
 
 }
