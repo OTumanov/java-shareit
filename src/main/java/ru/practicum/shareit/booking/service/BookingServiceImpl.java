@@ -5,7 +5,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.utils.State;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.exceptions.model.AccessException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
@@ -17,7 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static ru.practicum.shareit.booking.utils.BookingStatus.*;
+import static ru.practicum.shareit.booking.utils.BookingStatus.REJECTED;
+import static ru.practicum.shareit.booking.utils.BookingStatus.WAITING;
 
 @Service
 @AllArgsConstructor
@@ -48,37 +48,38 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findAllByBooker(String state, Long userId) {
-
-        State status = parseState(state);
         userRepository.findById(userId);
-        LocalDateTime now = LocalDateTime.now();
+
         List<Booking> bookings;
+        BookingStatus status = parseState(state);
+        LocalDateTime now = LocalDateTime.now();
         Sort sort = Sort.by("start").descending();
 
+
         switch (status) {
-            case REJECTED :
+            case REJECTED:
                 bookings = bookingRepository
                         .findByBookerIdAndStatus(userId, REJECTED, sort);
                 break;
-            case WAITING :
+            case WAITING:
                 bookings = bookingRepository
                         .findByBookerIdAndStatus(userId, WAITING, sort);
                 break;
-            case CURRENT :
+            case CURRENT:
                 bookings = bookingRepository.findByBookerIdCurrent(userId, now);
                 break;
-            case FUTURE :
+            case FUTURE:
                 bookings = bookingRepository
                         .findByBookerIdAndStartIsAfter(userId, now, sort);
                 break;
-            case PAST :
+            case PAST:
                 bookings = bookingRepository
                         .findByBookerIdAndEndIsBefore(userId, now, sort);
                 break;
-            case ALL :
+            case ALL:
                 bookings = bookingRepository.findByBookerId(userId, sort);
                 break;
-            default :
+            default:
                 throw new IllegalArgumentException("Со статусом какая-то беда...");
         }
         return bookings;
@@ -86,8 +87,42 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDetailed> findAllByItemOwner(String state, Long userId) {
-        return null;
+    public List<Booking> findAllByItemOwner(String state, Long userId) {
+        userRepository.findById(userId);
+
+        List<Booking> bookings;
+        BookingStatus status = parseState(state);
+        LocalDateTime now = LocalDateTime.now();
+        Sort sort = Sort.by("start").descending();
+
+        switch (status) {
+            case REJECTED:
+                bookings = bookingRepository
+                        .findBookingByItemOwnerAndStatus(userId, REJECTED, sort);
+                break;
+            case WAITING:
+                bookings = bookingRepository
+                        .findBookingByItemOwnerAndStatus(userId, WAITING, sort);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now);
+                break;
+            case FUTURE:
+                bookings = bookingRepository
+                        .findBookingByItemOwnerAndStartIsAfter(userId, now, sort);
+                break;
+            case PAST:
+                bookings = bookingRepository
+                        .findBookingByItemOwnerAndEndIsBefore(userId, now, sort);
+                break;
+            case ALL:
+                bookings = bookingRepository
+                        .findBookingByItemOwner(userId, sort);
+                break;
+            default:
+                throw new IllegalArgumentException("Со статусом какая-то беда...");
+        }
+        return bookings;
     }
 
     @Override
@@ -100,10 +135,10 @@ public class BookingServiceImpl implements BookingService {
         return null;
     }
 
-    private State parseState(String state) {
-        State status;
+    private BookingStatus parseState(String state) {
+        BookingStatus status;
         try {
-            status = State.valueOf(state);
+            status = BookingStatus.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStatusException("Запрошенного статуса не существует: " + state);
         }
