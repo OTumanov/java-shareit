@@ -24,10 +24,10 @@ public class Item {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "available", nullable = false)
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @JoinColumn(name = "owner")
+    @JoinColumn(name = "owner_id", nullable = false)
     private Long ownerId;
 
     @Override
