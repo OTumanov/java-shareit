@@ -102,26 +102,26 @@ public class BookingServiceImpl implements BookingService {
         switch (status) {
             case REJECTED:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, REJECTED, sort);
+                        .findBookingByItemOwnerIdAndStatus(userId, REJECTED, sort);
                 break;
             case WAITING:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, WAITING, sort);
+                        .findBookingByItemOwnerIdAndStatus(userId, WAITING, sort);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now);
                 break;
             case FUTURE:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStartIsAfter(userId, now, sort);
+                        .findBookingByItemOwnerIdAndStartIsAfter(userId, now, sort);
                 break;
             case PAST:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndEndIsBefore(userId, now, sort);
+                        .findBookingByItemOwnerIdAndEndIsBefore(userId, now, sort);
                 break;
             case ALL:
                 bookings = bookingRepository
-                        .findBookingByItemOwner(userId, sort);
+                        .findBookingByItemOwnerId(userId, sort);
                 break;
             default:
                 throw new IllegalArgumentException("Со статусом какая-то беда...");
