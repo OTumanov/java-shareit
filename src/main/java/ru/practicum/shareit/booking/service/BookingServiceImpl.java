@@ -5,15 +5,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingPost;
-import ru.practicum.shareit.booking.model.BookingPostResponse;
-import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.exceptions.model.AccessException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
 import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storge.UserRepository;
 
@@ -132,7 +130,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingPostResponse createBooking(BookingPost bookingPost, Long userId) {
+    public Booking createBooking(BookingPost bookingPost, Long userId) {
         userRepository.findById(userId);
 
         if (!bookingPost.getStart().isBefore(bookingPost.getEnd())) {
@@ -155,12 +153,28 @@ public class BookingServiceImpl implements BookingService {
                 .status(WAITING)
                 .build();
         bookingRepository.save(booking);
-        return BookingMapper.toPostResponseDto(booking, item);
+        return booking;
     }
 
     @Override
-    public BookingResponse patchBooking(Long bookingId, Boolean approved, Long userId) {
-        return null;
+    public Booking patchBooking(Long bookingId, Boolean approved, Long userId) {
+
+        Booking patchedBooking = bookingRepository.findById(bookingId).get();
+        ;
+        Item item = itemRepository.findById(patchedBooking.getItem().getId()).get();
+
+        if (!item.getOwnerId().equals(userId)) {
+            throw new NotFoundException("Пользователь " + userId + " не является владельцем цещи: " + item.getId());
+        }
+        BookingStatus status = convertToStatus(approved);
+
+        if (patchedBooking.getStatus().equals(status)) {
+            throw new IllegalArgumentException("Статус уже и так " + status);
+        }
+
+        patchedBooking.setStatus(status);
+        bookingRepository.save(patchedBooking);
+        return patchedBooking;
     }
 
     private BookingStatus parseState(String state) {
@@ -171,5 +185,9 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatusException("Запрошенного статуса не существует: " + state);
         }
         return status;
+    }
+
+    private BookingStatus convertToStatus(Boolean approved) {
+        return approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
     }
 }

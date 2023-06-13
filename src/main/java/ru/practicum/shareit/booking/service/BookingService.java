@@ -11,9 +11,8 @@ public interface BookingService {
 
     List<Booking> findAllByItemOwner(String state, Long userId);
 
-    BookingPostResponse createBooking(BookingPost bookingPost, Long userId);
+    Booking createBooking(BookingPost bookingPost, Long userId);
 
-    BookingResponse patchBooking(Long bookingId, Boolean approved, Long userId);
-
+    Booking patchBooking(Long bookingId, Boolean approved, Long userId);
 
 }

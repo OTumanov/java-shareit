@@ -1,25 +1,18 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
-import javax.validation.constraints.FutureOrPresent;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BookingPostResponseDto {
     private Long id;
     private Item item;
-
-    @FutureOrPresent(groups = {Create.class})
     private LocalDateTime start;
-
-    @FutureOrPresent(groups = {Create.class})
     private LocalDateTime end;
 }
