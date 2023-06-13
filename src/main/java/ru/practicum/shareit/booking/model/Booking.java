@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.model;
 
 import lombok.*;
-import ru.practicum.shareit.booking.utils.Status;
+import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -30,7 +30,7 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status;
+    private BookingStatus status;
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime start;

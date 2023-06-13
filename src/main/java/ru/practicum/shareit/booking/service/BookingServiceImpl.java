@@ -1,18 +1,42 @@
 package ru.practicum.shareit.booking.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.BookingDetailed;
-import ru.practicum.shareit.booking.model.BookingPost;
-import ru.practicum.shareit.booking.model.BookingPostResponse;
-import ru.practicum.shareit.booking.model.BookingResponse;
+import ru.practicum.shareit.booking.model.*;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exceptions.model.AccessException;
+import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.storge.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
+
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+
     @Override
-    public BookingDetailed findById(Long bookingId, Long userId) {
-        return null;
+    public Booking findById(Long bookingId, Long userId) {
+        userRepository.findById(userId);
+        Optional<Booking> booking = bookingRepository.findById(bookingId);
+
+        if (booking.isEmpty()) {
+            throw new NotFoundException("Заявка не найдена");
+        }
+
+        Booking result = booking.get();
+        Long itemOwner = result.getItem().getOwnerId();
+        Long bookingOwner = result.getBooker().getId();
+
+        if (!(userId.equals(bookingOwner) || userId.equals(itemOwner))) {
+            throw new AccessException("Это не принадлежит пользователю " + userId);
+        }
+        return result;
     }
 
     @Override
