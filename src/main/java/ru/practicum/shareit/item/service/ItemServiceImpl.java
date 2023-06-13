@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,8 +73,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItemByText(String text, Long userId) {
-        return itemRepository.searchItemByText(text);
+    public List<Item> search(String text, Long userId) {
+        if (text.isBlank() || text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return itemRepository.search(text);
     }
 
     private boolean checkItem(Item item, Long userId) {

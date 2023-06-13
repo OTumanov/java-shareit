@@ -49,7 +49,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
-        return ItemMapper.toItemDtoList(itemService.searchItemByText(text, userId));
+        return ItemMapper.toItemDtoList(itemService.search(text, userId));
     }
 
 }
