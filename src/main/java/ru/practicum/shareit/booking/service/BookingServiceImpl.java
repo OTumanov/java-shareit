@@ -7,10 +7,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingPost;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingStatus;
-import ru.practicum.shareit.exceptions.model.AccessException;
-import ru.practicum.shareit.exceptions.model.NotFoundException;
-import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
-import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
+import ru.practicum.shareit.exceptions.model.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storge.UserRepository;
@@ -45,14 +42,14 @@ public class BookingServiceImpl implements BookingService {
         Long bookingOwner = result.getBooker().getId();
 
         if (!(userId.equals(bookingOwner) || userId.equals(itemOwner))) {
-            throw new AccessException("Это не принадлежит пользователю " + userId);
+            throw new NotFoundException("Это не принадлежит пользователю " + userId);
         }
         return result;
     }
 
     @Override
     public List<Booking> findAllByBooker(String state, Long userId) {
-        userRepository.findById(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
         List<Booking> bookings;
         BookingStatus status = parseState(state);
@@ -62,23 +59,19 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case REJECTED:
-                bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, REJECTED, sort);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, sort);
                 break;
             case WAITING:
-                bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, WAITING, sort);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, sort);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdCurrent(userId, now);
                 break;
             case FUTURE:
-                bookings = bookingRepository
-                        .findByBookerIdAndStartIsAfter(userId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndStartIsAfter(userId, now, sort);
                 break;
             case PAST:
-                bookings = bookingRepository
-                        .findByBookerIdAndEndIsBefore(userId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndEndIsBefore(userId, now, sort);
                 break;
             case ALL:
                 bookings = bookingRepository.findByBookerId(userId, sort);
@@ -92,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findAllByItemOwner(String state, Long userId) {
-        userRepository.findById(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
         List<Booking> bookings;
         BookingStatus status = parseState(state);
@@ -131,17 +124,26 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking createBooking(BookingPost bookingPost, Long userId) {
-        userRepository.findById(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        itemRepository.findById(bookingPost.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+
+        if (bookingPost.getStart() == null || bookingPost.getEnd() == null) {
+            throw new ValidationException("Не указано время начала или время завершения бронирования");
+        }
+
+        if (bookingPost.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время начала -- " + bookingPost.getStart() + " не может быть меньше текущего времени");
+        }
 
         if (!bookingPost.getStart().isBefore(bookingPost.getEnd())) {
-            throw new IllegalArgumentException("Время начала -- " + bookingPost.getStart() + " не может быть раньше времени завершения -- " + bookingPost.getEnd());
+            throw new ValidationException("Время начала -- " + bookingPost.getStart() + " не может быть после времени завершения -- " + bookingPost.getEnd());
         }
 
         if (userId.equals(itemRepository.findById(bookingPost.getItemId()).get().getOwnerId())) {
-            throw new ValidationException("Нельзя забронировать свою же вещь");
+            throw new NotFoundException("Нельзя забронировать свою же вещь");
         }
 
-        if (bookingRepository.findById(bookingPost.getItemId()).isPresent()) {
+        if (!itemRepository.findById(bookingPost.getItemId()).get().getAvailable()) {
             throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
         }
 
@@ -158,10 +160,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking patchBooking(Long bookingId, Boolean approved, Long userId) {
-
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Booking patchedBooking = bookingRepository.findById(bookingId).get();
-        ;
         Item item = itemRepository.findById(patchedBooking.getItem().getId()).get();
+
+        if (!item.getAvailable()) {
+            throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
+        }
 
         if (!item.getOwnerId().equals(userId)) {
             throw new NotFoundException("Пользователь " + userId + " не является владельцем цещи: " + item.getId());
@@ -169,7 +174,7 @@ public class BookingServiceImpl implements BookingService {
         BookingStatus status = convertToStatus(approved);
 
         if (patchedBooking.getStatus().equals(status)) {
-            throw new IllegalArgumentException("Статус уже и так " + status);
+            throw new UnsupportedStatusException("Статус уже и так " + status);
         }
 
         patchedBooking.setStatus(status);
@@ -182,7 +187,7 @@ public class BookingServiceImpl implements BookingService {
         try {
             status = BookingStatus.valueOf(state);
         } catch (IllegalArgumentException e) {
-            throw new UnsupportedStatusException("Запрошенного статуса не существует: " + state);
+            throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         }
         return status;
     }

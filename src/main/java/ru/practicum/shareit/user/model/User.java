@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
-import org.hibernate.annotations.ValueGenerationType;
 
 import javax.persistence.*;
 
@@ -9,6 +8,7 @@ import javax.persistence.*;
 @Table(name = "users")
 @Getter
 @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

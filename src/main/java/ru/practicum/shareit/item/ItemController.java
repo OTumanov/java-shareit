@@ -17,25 +17,29 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Long itemId) {
+    public ru.practicum.shareit.item.dto.ItemDto getItemById(@PathVariable Long itemId,
+                                                             @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос вещи с id = {}", itemId);
-        return ItemMapper.toItemDto(itemService.getItemById(itemId));
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос всех вещей пользователя с id = {}", userId);
-        return ItemMapper.toItemDtoList(itemService.findAllItemsByUserId(userId));
+        return itemService.findAllItemsByUserId(userId);
     }
 
     @PostMapping
-    public ItemDto createItem(@RequestBody ItemDto itemDto, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+    public ru.practicum.shareit.item.dto.ItemDto createItem(@RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto,
+                                                            @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос на создание вещи");
         return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@PathVariable Long itemId, @RequestHeader(name = "X-Sharer-User-Id") Long userId, @RequestBody ItemDto itemDto) {
+    public ru.practicum.shareit.item.dto.ItemDto updateItem(@PathVariable Long itemId,
+                                                            @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                            @RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto) {
         log.info("Запрос на обновление вещи с id = {}", itemId);
         return ItemMapper.toItemDto(itemService.updateItem(itemId, userId, ItemMapper.toItem(itemDto)));
     }
@@ -47,7 +51,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text, @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+    public List<ru.practicum.shareit.item.dto.ItemDto> searchItems(@RequestParam String text,
+                                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
         return ItemMapper.toItemDtoList(itemService.search(text, userId));
     }

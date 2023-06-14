@@ -41,6 +41,7 @@ public class BookingController {
     @PostMapping
     public BookingPostResponseDto createBooking(@RequestBody BookingPost bookingPost,
                                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Запрос на бронирование вещи bookingPost={}, userId={}", bookingPost, userId);
         return BookingMapper.toBookingPostResponseDto(bookingService.createBooking(bookingPost, userId));
     }
 
@@ -48,6 +49,7 @@ public class BookingController {
     public BookingResponseDto patchBooking(@PathVariable Long bookingId,
                                            @RequestParam Boolean approved,
                                            @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Запрос на обновление bookingId={}, approved={}, userId={}", bookingId, approved, userId);
         return BookingMapper.toBookingResponseDto(bookingService.patchBooking(bookingId, approved, userId));
     }
 }

@@ -10,34 +10,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
-    public static BookingDetailed toBookingDetailed(Booking booking) {
-        return BookingDetailed.builder()
+    public static BookingResponseDto toBookingResponseDto(Booking booking) {
+        BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
                 .id(booking.getId())
+                .status(booking.getStatus())
+                .booker(booking.getBooker())
+                .item(booking.getItem())
+                .name(booking.getItem().getName())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .status(booking.getStatus())
-                .booker(booking.getBooker())
-                .item(booking.getItem())
-                .name(booking.getItem().getName())
                 .build();
-    }
 
-    public static BookingResponseDto toBookingResponseDto(Booking booking) {
-        return BookingResponseDto.builder()
-                .id(booking.getId())
-                .status(booking.getStatus())
-                .booker(booking.getBooker())
-                .item(booking.getItem())
-                .name(booking.getItem().getName())
-                .build();
+        System.out.println(bookingResponseDto);
+
+        return bookingResponseDto;
     }
 
     public static BookingPostResponseDto toBookingPostResponseDto(Booking booking) {
-        return BookingPostResponseDto.builder()
+        BookingPostResponseDto bookingPostResponseDto = BookingPostResponseDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
+                .status(String.valueOf(booking.getStatus()))
+                .booker(booking.getBooker())
+                .item(booking.getItem())
                 .build();
+
+        System.out.println(bookingPostResponseDto);
+
+        return bookingPostResponseDto;
     }
 
     public static BookingDetailedDto toBookingDetailedDto(Booking booking) {
