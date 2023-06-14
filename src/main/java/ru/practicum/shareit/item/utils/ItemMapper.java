@@ -24,18 +24,20 @@ public class ItemMapper {
         if(lastBooking == null && nextBooking == null) {
             return toItemDto(item);
         }
-        BookingInItemDto nextBookingDto = BookingInItemDto.builder()
-                .id(nextBooking.getId())
-                .start(nextBooking.getStart())
-                .end(nextBooking.getEnd())
-                .bookerId(nextBooking.getBooker().getId())
-                .build();
-
-        BookingInItemDto lastBookingDto = BookingInItemDto.builder()
+        BookingInItemDto last = BookingInItemDto.builder()
                 .id(lastBooking.getId())
                 .start(lastBooking.getStart())
                 .end(lastBooking.getEnd())
                 .bookerId(lastBooking.getBooker().getId())
+                .status(lastBooking.getStatus())
+                .build();
+
+        BookingInItemDto next = BookingInItemDto.builder()
+                .id(nextBooking.getId())
+                .start(nextBooking.getStart())
+                .end(nextBooking.getEnd())
+                .bookerId(nextBooking.getBooker().getId())
+                .status(nextBooking.getStatus())
                 .build();
 
         return ItemDto.builder()
@@ -44,8 +46,8 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .ownerId(item.getOwnerId())
-                .nextBooking(nextBookingDto)
-                .lastBooking(lastBookingDto)
+                .nextBooking(next)
+                .lastBooking(last)
                 .build();
     }
 

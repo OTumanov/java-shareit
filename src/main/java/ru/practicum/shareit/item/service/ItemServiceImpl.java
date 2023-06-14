@@ -16,7 +16,6 @@ import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +30,8 @@ public class ItemServiceImpl implements ItemService {
 
         if (item.getOwnerId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
-            Sort sortAsc = Sort.by("start");
-            return constructItemDtoForOwner(item, now, sortAsc);
+            Sort sort = Sort.by("start");
+            return constructItemDtoForOwner(item, now, sort);
         }
         return ItemMapper.toItemDto(item, null, null);
     }
@@ -43,20 +42,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findAllItemsByUserId(Long userId) {
-        List<Item> userItems = itemRepository.findAll()
-                .stream().filter(item -> item.getOwnerId().equals(userId))
-                .collect(Collectors.toList());
-
+        List<Item> userItems = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
         fillItemAdvancedList(result, userItems, userId);
         result.sort((o1, o2) -> {
             if (o1.getNextBooking() == null && o2.getNextBooking() == null) {
                 return 0;
             }
-            if (o1.getNextBooking() != null && o2.getNextBooking() == null) {
+            if (o2.getNextBooking() == null) {
                 return -1;
             }
-            if (o1.getNextBooking() == null && o2.getNextBooking() != null) {
+            if (o1.getNextBooking() == null) {
                 return 1;
             }
             if (o1.getNextBooking().getStart().isBefore(o2.getNextBooking().getStart())) {
@@ -130,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        Sort sortDesc = Sort.by("start").descending();
+        Sort sortDesc = Sort.by("start");
 
         for (Item item : foundItems) {
             if (item.getOwnerId().equals(userId)) {
