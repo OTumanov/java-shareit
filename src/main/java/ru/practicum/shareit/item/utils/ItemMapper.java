@@ -31,7 +31,6 @@ public class ItemMapper {
                 .bookerId(lastBooking.getBooker().getId())
                 .status(lastBooking.getStatus())
                 .build();
-
         BookingInItemDto next = BookingInItemDto.builder()
                 .id(nextBooking.getId())
                 .start(nextBooking.getStart())
