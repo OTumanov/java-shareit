@@ -22,19 +22,20 @@ public class ItemMapper {
     }
 
     public static ItemDto toItemDto(Item item, List<Comment> comments) {
-       ItemDto itemDto = ItemDto.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .ownerId(item.getOwnerId())
                 .build();
-       if(comments != null) {
-           itemDto.setComments(CommentMapper.toCommentDtoList(comments));
-       } else {
-           itemDto.setComments(new ArrayList<>());
-       }
-       return itemDto;
+        if (comments != null) {
+            itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+        } else {
+            itemDto.setComments(new ArrayList<>());
+        }
+
+        return itemDto;
     }
 
     public static ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments) {
@@ -49,6 +50,7 @@ public class ItemMapper {
                 .bookerId(lastBooking.getBooker().getId())
                 .status(lastBooking.getStatus())
                 .build();
+
         BookingInItemDto next = BookingInItemDto.builder()
                 .id(nextBooking.getId())
                 .start(nextBooking.getStart())
@@ -57,7 +59,7 @@ public class ItemMapper {
                 .status(nextBooking.getStatus())
                 .build();
 
-        return ItemDto.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
@@ -66,6 +68,14 @@ public class ItemMapper {
                 .nextBooking(next)
                 .lastBooking(last)
                 .build();
+
+        if (comments != null) {
+            itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+        } else {
+            itemDto.setComments(new ArrayList<>());
+        }
+
+        return itemDto;
     }
 
     public static Item toItem(ItemDto itemDto) {

@@ -35,14 +35,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ru.practicum.shareit.item.dto.ItemDto getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-        List<Comment> comments = commentRepository.findAllCommentsById(item.getId());
+        List<Comment> comments = commentRepository.findAllCommentsByItemId(item.getId());
 
         if (item.getOwnerId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
-            Sort sort = Sort.by("start");
+            Sort sort = Sort.by("start").descending();
             return constructItemDtoForOwner(item, now, sort, comments);
         }
-        return ItemMapper.toItemDto(item, null, null, null);
+        return ItemMapper.toItemDto(item, null, null, comments);
     }
 
     private Item getItemById(Long itemId) {
@@ -152,12 +152,12 @@ public class ItemServiceImpl implements ItemService {
 
     private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        Sort sortDesc = Sort.by("start");
+        Sort sort = Sort.by("start").descending();
 
         for (Item item : foundItems) {
-            List<Comment> comments = commentRepository.findAllCommentsById(item.getId());
+            List<Comment> comments = commentRepository.findAllCommentsByItemId(item.getId());
             if (item.getOwnerId().equals(userId)) {
-                ItemDto itemDto = constructItemDtoForOwner(item, now, sortDesc, comments);
+                ItemDto itemDto = constructItemDtoForOwner(item, now, sort, comments);
                 result.add(itemDto);
             } else {
                 result.add(ItemMapper.toItemDto(item, null, null, comments));
@@ -168,6 +168,7 @@ public class ItemServiceImpl implements ItemService {
     private ru.practicum.shareit.item.dto.ItemDto constructItemDtoForOwner(Item item, LocalDateTime now, Sort sort, List<Comment> comments) {
         Booking lastBooking = bookingRepository.findBookingByItemIdAndEndBefore(item.getId(), now, sort)
                 .stream().findFirst().orElse(null);
+
         Booking nextBooking = bookingRepository.findBookingByItemIdAndStartAfter(item.getId(), now, sort)
                 .stream().findFirst().orElse(null);
 
