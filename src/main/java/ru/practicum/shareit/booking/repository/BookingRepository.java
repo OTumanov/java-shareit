@@ -27,12 +27,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findBookingByItemOwnerId(Long bookerId, Sort sort);
 
-    List<Booking> findBookingByItemIdAndEndBefore(Long itemId, LocalDateTime now, Sort sort);
-//    List<Booking> findBookingByItemIdAndEndBeforeAndStatusEquals(Long itemId, LocalDateTime now, BookingStatus status);
-
-    List<Booking> findBookingByItemIdAndStartAfter(Long itemId, LocalDateTime now, Sort sort);
-//    List<Booking> findBookingByItemIdAndStartAfterAndStatusEquals(Long itemId, LocalDateTime now, BookingStatus status);
-
     @Query("select b from Booking b " +
             "where b.booker.id = ?1 " +
             "and b.start < ?2 " +
@@ -52,4 +46,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             " and b.booker.id = ?2" +
             " and b.end < ?3")
     List<Booking> findBookingsForAddComments(Long itemId, Long userId, LocalDateTime now);
+
+    List<Booking> findAllBookingsByItemId(Long id);
 }
