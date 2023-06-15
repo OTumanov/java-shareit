@@ -3,7 +3,9 @@ package ru.practicum.shareit.item.utils;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.CommentMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +21,26 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking) {
+    public static ItemDto toItemDto(Item item, List<Comment> comments) {
+       ItemDto itemDto = ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .ownerId(item.getOwnerId())
+                .build();
+       if(comments != null) {
+           itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+       } else {
+           itemDto.setComments(new ArrayList<>());
+       }
+       return itemDto;
+    }
 
-        if(lastBooking == null && nextBooking == null) {
-            return toItemDto(item);
+    public static ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments) {
+
+        if (lastBooking == null || nextBooking == null) {
+            return toItemDto(item, comments);
         }
         BookingInItemDto last = BookingInItemDto.builder()
                 .id(lastBooking.getId())

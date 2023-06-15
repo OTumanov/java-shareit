@@ -5,12 +5,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exceptions.model.CommentException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreateCommentFromDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.storge.UserRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -23,17 +29,20 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public ru.practicum.shareit.item.dto.ItemDto getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        List<Comment> comments = commentRepository.findAllCommentsById(item.getId());
 
         if (item.getOwnerId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
             Sort sort = Sort.by("start");
-            return constructItemDtoForOwner(item, now, sort);
+            return constructItemDtoForOwner(item, now, sort, comments);
         }
-        return ItemMapper.toItemDto(item, null, null);
+        return ItemMapper.toItemDto(item, null, null, null);
     }
 
     private Item getItemById(Long itemId) {
@@ -110,6 +119,23 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.search(text);
     }
 
+    @Override
+    public CommentDto createComment(CreateCommentFromDto commentDto, Long itemId, Long userId) {
+        itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        if (commentDto.getText() == null || commentDto.getText().isBlank() || commentDto.getText().isEmpty()) {
+            throw new ValidationException("Комментарий не может быть пустым");
+        }
+        if (bookingRepository.findBookingsForAddComments(itemId, userId, LocalDateTime.now()).isEmpty()) {
+            throw new CommentException("Этой вещью вы не пользовались или не закончился срок аренды!");
+        }
+        Comment comment = CommentMapper.toModel(commentDto,
+                itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена")),
+                userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден")));
+
+        return CommentMapper.toCommentDetailedDto(comment);
+    }
+
     private boolean checkItem(Item item, Long userId) {
         if (item.getAvailable() == null) {
             throw new ValidationException("Не указана доступность вещи");
@@ -129,21 +155,22 @@ public class ItemServiceImpl implements ItemService {
         Sort sortDesc = Sort.by("start");
 
         for (Item item : foundItems) {
+            List<Comment> comments = commentRepository.findAllCommentsById(item.getId());
             if (item.getOwnerId().equals(userId)) {
-                ItemDto itemDto = constructItemDtoForOwner(item, now, sortDesc);
+                ItemDto itemDto = constructItemDtoForOwner(item, now, sortDesc, comments);
                 result.add(itemDto);
             } else {
-                result.add(ItemMapper.toItemDto(item, null, null));
+                result.add(ItemMapper.toItemDto(item, null, null, comments));
             }
         }
     }
 
-    private ru.practicum.shareit.item.dto.ItemDto constructItemDtoForOwner(Item item, LocalDateTime now, Sort sort) {
+    private ru.practicum.shareit.item.dto.ItemDto constructItemDtoForOwner(Item item, LocalDateTime now, Sort sort, List<Comment> comments) {
         Booking lastBooking = bookingRepository.findBookingByItemIdAndEndBefore(item.getId(), now, sort)
                 .stream().findFirst().orElse(null);
         Booking nextBooking = bookingRepository.findBookingByItemIdAndStartAfter(item.getId(), now, sort)
                 .stream().findFirst().orElse(null);
 
-        return ItemMapper.toItemDto(item, lastBooking, nextBooking);
+        return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
     }
 }

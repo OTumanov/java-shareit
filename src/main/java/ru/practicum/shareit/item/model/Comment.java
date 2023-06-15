@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "comments")
@@ -14,7 +16,7 @@ import java.time.Instant;
 @ToString
 @Builder
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +34,18 @@ public class Comment {
     private User author;
 
     @NotNull
-    private Instant created;
+    private LocalDateTime created;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Comment comment = (Comment) o;
+        return getId() != null && Objects.equals(getId(), comment.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
