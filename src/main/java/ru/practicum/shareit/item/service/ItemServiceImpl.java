@@ -134,6 +134,7 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.toModel(commentDto,
                 itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена")),
                 userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден")));
+        commentRepository.save(comment);
 
         return CommentMapper.toCommentDetailedDto(comment);
     }

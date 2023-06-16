@@ -22,7 +22,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId,
-                                                             @RequestHeader(name = USER_ID_HEADER) Long userId) {
+                               @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос вещи с id = {}", itemId);
         return itemService.getItemById(itemId, userId);
     }
@@ -35,15 +35,15 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto,
-                                                            @RequestHeader(name = USER_ID_HEADER) Long userId) {
+                              @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание вещи");
         return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
-                                                            @RequestHeader(name = USER_ID_HEADER) Long userId,
-                                                            @RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto) {
+                              @RequestHeader(name = USER_ID_HEADER) Long userId,
+                              @RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto) {
         log.info("Запрос на обновление вещи с id = {}", itemId);
         return ItemMapper.toItemDto(itemService.updateItem(itemId, userId, ItemMapper.toItem(itemDto)));
     }
