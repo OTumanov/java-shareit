@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingStatus;
+import ru.practicum.shareit.exceptions.model.AccessException;
 import ru.practicum.shareit.exceptions.model.CommentException;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -94,17 +96,20 @@ public class ItemServiceImpl implements ItemService {
         String description = (item.getDescription() == null || item.getDescription().isEmpty() || item.getDescription().isBlank()
                 ? getItemById(itemId).getDescription() : item.getDescription());
         boolean available = (item.getAvailable() == null) ? getItemById(itemId).getAvailable() : item.getAvailable();
-        Long ownerId = (userId != null) ? userId : getItemById(itemId).getOwnerId();
+        if (Objects.equals(userId, itemRepository.findById(itemId).get().getOwnerId())) {
 
-        Item updatedItem = Item.builder()
-                .id(itemId)
-                .name(name)
-                .description(description)
-                .available(available)
-                .ownerId(ownerId)
-                .build();
-
-        return itemRepository.save(updatedItem);
+            Item updatedItem;
+            updatedItem = Item.builder()
+                    .id(itemId)
+                    .name(name)
+                    .description(description)
+                    .available(available)
+                    .ownerId(userId)
+                    .build();
+            return itemRepository.save(updatedItem);
+        } else {
+            throw new AccessException("Доступ запрещен");
+        }
     }
 
     @Override
