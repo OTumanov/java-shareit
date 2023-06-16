@@ -26,9 +26,9 @@ public class ErrorHandler {
     public ErrorResponse handleValidationException(UnsupportedStatusException exception) {
         log.warn("400 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
-    }    @ExceptionHandler
+    }
 
-
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(CommentException exception) {
         log.warn("400 {}", exception.getMessage(), exception);
