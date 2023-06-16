@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+
 public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select it " +
             "from Item as it " +
