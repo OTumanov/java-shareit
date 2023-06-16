@@ -3,11 +3,14 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingPost;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingStatus;
-import ru.practicum.shareit.exceptions.model.*;
+import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
+import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
+import ru.practicum.shareit.exceptions.model.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storge.UserRepository;
@@ -123,35 +126,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking createBooking(BookingPost bookingPost, Long userId) {
+    public Booking createBooking(BookingPostDto bookingPostDto, Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        itemRepository.findById(bookingPost.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        itemRepository.findById(bookingPostDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
-        if (bookingPost.getStart() == null || bookingPost.getEnd() == null) {
+        if (bookingPostDto.getStart() == null || bookingPostDto.getEnd() == null) {
             throw new ValidationException("Не указано время начала или время завершения бронирования");
         }
 
-        if (bookingPost.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Время начала -- " + bookingPost.getStart() + " не может быть меньше текущего времени");
+        if (bookingPostDto.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время начала -- " + bookingPostDto.getStart() + " не может быть меньше текущего времени");
         }
 
-        if (!bookingPost.getStart().isBefore(bookingPost.getEnd())) {
-            throw new ValidationException("Время начала -- " + bookingPost.getStart() + " не может быть после времени завершения -- " + bookingPost.getEnd());
+        if (!bookingPostDto.getStart().isBefore(bookingPostDto.getEnd())) {
+            throw new ValidationException("Время начала -- " + bookingPostDto.getStart() + " не может быть после времени завершения -- " + bookingPostDto.getEnd());
         }
 
-        if (userId.equals(itemRepository.findById(bookingPost.getItemId()).get().getOwnerId())) {
+        if (userId.equals(itemRepository.findById(bookingPostDto.getItemId()).get().getOwnerId())) {
             throw new NotFoundException("Нельзя забронировать свою же вещь");
         }
 
-        if (!itemRepository.findById(bookingPost.getItemId()).get().getAvailable()) {
+        if (!itemRepository.findById(bookingPostDto.getItemId()).get().getAvailable()) {
             throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
         }
 
         Booking booking = Booking.builder()
-                .start(bookingPost.getStart())
-                .end(bookingPost.getEnd())
+                .start(bookingPostDto.getStart())
+                .end(bookingPostDto.getEnd())
                 .booker(userRepository.findById(userId).get())
-                .item(itemRepository.findById(bookingPost.getItemId()).get())
+                .item(itemRepository.findById(bookingPostDto.getItemId()).get())
                 .status(WAITING)
                 .build();
         bookingRepository.save(booking);

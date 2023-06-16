@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.booking.model.*;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface BookingService {
 
     List<Booking> findAllByItemOwner(String state, Long userId);
 
-    Booking createBooking(BookingPost bookingPost, Long userId);
+    Booking createBooking(BookingPostDto bookingPost, Long userId);
 
     Booking patchBooking(Long bookingId, Boolean approved, Long userId);
 
