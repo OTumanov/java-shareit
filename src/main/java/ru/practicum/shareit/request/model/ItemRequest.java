@@ -23,13 +23,17 @@ public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String description;
+
     @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;
+
     @CreationTimestamp
     private LocalDateTime created;
+
     @Transient
     private List<Item> items;
 }
