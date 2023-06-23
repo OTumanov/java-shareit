@@ -37,7 +37,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto createItem(@RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto,
+    public ItemDto createItem(@RequestBody ItemDto itemDto,
                               @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание вещи");
         return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
@@ -46,7 +46,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
                               @RequestHeader(name = USER_ID_HEADER) Long userId,
-                              @RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto) {
+                              @RequestBody ItemDto itemDto) {
         log.info("Запрос на обновление вещи с id = {}", itemId);
         return ItemMapper.toItemDto(itemService.updateItem(itemId, userId, ItemMapper.toItem(itemDto)));
     }
@@ -64,14 +64,6 @@ public class ItemController {
         log.info("Запрос на поиск вещей с текстом = {}", text);
         return ItemMapper.toItemDtoList(itemService.search(text, from, size));
     }
-
-
-//    @GetMapping("/search")
-//    public Collection<ItemDto> searchItems(@RequestParam String text,
-//                                           @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-//                                           @Positive @RequestParam(defaultValue = "10") Integer size) {
-//        return itemService.searchAvailableItems(text, from, size);
-//    }
 
 
     @PostMapping("/{itemId}/comment")

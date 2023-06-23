@@ -3,12 +3,10 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -16,32 +14,26 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @Validated
 public class ItemRequestController {
-    private final RequestService requestService;
+    private final ItemRequestService requestService;
     static final String HEADER_USER_ID = "X-Sharer-User-Id";
 
-    @PostMapping
-    public ItemRequestDto addRequest(@RequestHeader(value = HEADER_USER_ID) Long userId,
-                                     @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        return requestService.addRequest(userId, itemRequestDto);
-    }
-
-    @GetMapping("{requestId}")
-    public ItemRequestDto getRequestById(@RequestHeader(value = HEADER_USER_ID) Long userId,
-                                         @PathVariable Long requestId) {
-        return requestService.getById(userId, requestId);
-    }
-
     @GetMapping
-    public List<ItemRequestDto> getAllUserRequest(
-            @RequestHeader(value = HEADER_USER_ID) Long userId) {
-        return requestService.getAllUserRequest(userId);
+    public List<ItemRequestDto> findAllByUserId(@RequestHeader(value = HEADER_USER_ID) Long userId) {
+        return requestService.findAllByUserId(userId);
     }
 
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequests(
             @RequestHeader(value = HEADER_USER_ID) Long userId,
-            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-            @Positive @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size) {
         return requestService.getAllRequest(userId, from, size);
+    }
+
+
+    @PostMapping
+    public ItemRequestDto addRequest(@RequestHeader(value = HEADER_USER_ID) Long userId,
+                                     @Valid @RequestBody ItemRequestDto itemRequestDto) {
+        return requestService.addRequest(userId, itemRequestDto);
     }
 }

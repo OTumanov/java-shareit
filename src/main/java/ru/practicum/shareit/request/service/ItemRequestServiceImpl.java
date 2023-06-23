@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.item.storage.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestsRepository;
 import ru.practicum.shareit.request.utils.RequestMapper;
@@ -17,12 +17,13 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.utils.UserMapper;
 
 
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RequestServiceImpl implements RequestService {
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final RequestsRepository requestsRepository;
     private final UserService userService;
     private final ItemRepository itemRepository;
@@ -49,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getAllUserRequest(long userId) {
+    public List<ItemRequestDto> findAllByUserId(long userId) {
         userService.findUserById(userId);
         return requestsRepository.findAllByRequesterIdOrderByCreatedDesc(userId).stream()
                 .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByItemRequest(itemRequest)))
@@ -59,6 +60,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ItemRequestDto> getAllRequest(long userId, int from, int size) {
+        if(from < 0 || size < 0) {
+            throw new ValidationException("Некорректные параметры");
+        }
         userService.findUserById(userId);
         Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
         return requestsRepository.findAllByRequesterIdIsNot(userId, page).stream()
