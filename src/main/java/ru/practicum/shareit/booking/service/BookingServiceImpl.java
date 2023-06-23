@@ -56,6 +56,10 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findAllByBooker(String state, Long userId, Integer from, Integer size) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Некорректные параметры");
+        }
+
         Pageable page = PageRequest.of(from / size, size);
         List<Booking> bookings;
         BookingStatus status = parseState(state);
@@ -71,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, page);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findByBookerIdCurrent(userId, now);
+                bookings = bookingRepository.findByBookerIdCurrent(userId, now, page);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByBookerIdAndStartIsAfter(userId, now, sort);
@@ -90,9 +94,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findAllByItemOwner(String state, Long userId) {
+    public List<Booking> findAllByItemOwner(String state, Long userId, Integer from, Integer size) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Некорректные параметры");
+        }
+        Pageable page = PageRequest.of(from / size, size);
         List<Booking> bookings;
         BookingStatus status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
@@ -101,14 +108,14 @@ public class BookingServiceImpl implements BookingService {
         switch (status) {
             case REJECTED:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndStatus(userId, REJECTED, sort);
+                        .findBookingByItemOwnerIdAndStatus(userId, REJECTED, page);
                 break;
             case WAITING:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndStatus(userId, WAITING, sort);
+                        .findBookingByItemOwnerIdAndStatus(userId, WAITING, page);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now);
+                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now, page);
                 break;
             case FUTURE:
                 bookings = bookingRepository

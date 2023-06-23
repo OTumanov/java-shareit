@@ -10,7 +10,7 @@ public interface BookingService {
 
     List<Booking> findAllByBooker(String state, Long userId, Integer from, Integer size);
 
-    List<Booking> findAllByItemOwner(String state, Long userId);
+    List<Booking> findAllByItemOwner(String state, Long userId, Integer from, Integer size);
 
     Booking createBooking(BookingPostDto bookingPost, Long userId);
 

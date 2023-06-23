@@ -39,9 +39,12 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDetailedDto> findAllByItemOwner(@RequestParam(defaultValue = "ALL") String state,
-                                                       @RequestHeader(USER_ID_HEADER) Long userId) {
-        return BookingMapper.toListDetailedDto(bookingService.findAllByItemOwner(state, userId));
+                                                       @RequestHeader(USER_ID_HEADER) Long userId,
+                                                       @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                       @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return BookingMapper.toListDetailedDto(bookingService.findAllByItemOwner(state, userId, from, size));
     }
+
 
     @PostMapping
     public BookingPostResponseDto createBooking(@RequestBody BookingPostDto bookingPostDto,
