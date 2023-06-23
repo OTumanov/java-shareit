@@ -10,6 +10,8 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.utils.BookingMapper;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -29,8 +31,10 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDetailedDto> findAllBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                    @RequestHeader(USER_ID_HEADER) Long userId) {
-        return BookingMapper.toListDetailedDto(bookingService.findAllByBooker(state, userId));
+                                                    @RequestHeader(USER_ID_HEADER) Long userId,
+                                                    @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                    @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return BookingMapper.toListDetailedDto(bookingService.findAllByBooker(state, userId, from, size));
     }
 
     @GetMapping("/owner")

@@ -9,6 +9,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.utils.ItemMapper;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -27,9 +29,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(name = USER_ID_HEADER) Long userId) {
+    public List<ItemDto> getAllItems(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Запрос всех вещей пользователя с id = {}", userId);
-        return itemService.findAllItemsByUserId(userId);
+        return itemService.findAllItemsByUserId(userId, from, size);
     }
 
     @PostMapping
@@ -54,11 +58,21 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ru.practicum.shareit.item.dto.ItemDto> searchItems(@RequestParam String text,
-                                                                   @RequestHeader(name = USER_ID_HEADER) Long userId) {
-        log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
-        return ItemMapper.toItemDtoList(itemService.search(text, userId));
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @PositiveOrZero @RequestHeader(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Запрос на поиск вещей с текстом = {}", text);
+        return ItemMapper.toItemDtoList(itemService.search(text, from, size));
     }
+
+
+//    @GetMapping("/search")
+//    public Collection<ItemDto> searchItems(@RequestParam String text,
+//                                           @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+//                                           @Positive @RequestParam(defaultValue = "10") Integer size) {
+//        return itemService.searchAvailableItems(text, from, size);
+//    }
+
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestBody CreateCommentFromDto commentDto,

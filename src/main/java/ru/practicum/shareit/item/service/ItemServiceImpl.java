@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingStatus;
@@ -19,12 +22,14 @@ import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storge.UserRepository;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,9 +56,11 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 
+    @Transactional
     @Override
-    public List<ItemDto> findAllItemsByUserId(Long userId) {
-        List<Item> userItems = itemRepository.findAllByOwnerId(userId);
+    public List<ItemDto> findAllItemsByUserId(Long userId, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
+        List<Item> userItems = itemRepository.findAllByOwnerId(userId, page);
         List<ItemDto> result = new ArrayList<>();
         fillItemAdvancedList(result, userItems, userId);
         result.sort((o1, o2) -> {
@@ -117,13 +124,15 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(itemId);
     }
 
+    @Transactional
     @Override
-    public List<Item> search(String text, Long userId) {
+    public List<Item> search(String text, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text);
+        return new ArrayList<>(itemRepository.search(text, page));
     }
 
     @Override

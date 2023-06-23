@@ -8,7 +8,7 @@ import java.util.List;
 public interface BookingService {
     Booking findById(Long bookingId, Long userId);
 
-    List<Booking> findAllByBooker(String state, Long userId);
+    List<Booking> findAllByBooker(String state, Long userId, Integer from, Integer size);
 
     List<Booking> findAllByItemOwner(String state, Long userId);
 

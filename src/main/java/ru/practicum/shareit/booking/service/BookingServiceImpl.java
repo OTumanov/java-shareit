@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
@@ -51,9 +53,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findAllByBooker(String state, Long userId) {
+    public List<Booking> findAllByBooker(String state, Long userId, Integer from, Integer size) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
+        Pageable page = PageRequest.of(from / size, size);
         List<Booking> bookings;
         BookingStatus status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
@@ -62,10 +65,10 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case REJECTED:
-                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, sort);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, page);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, sort);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, page);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdCurrent(userId, now);
