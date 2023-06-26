@@ -37,4 +37,13 @@ public class UserMapper {
 
         return result;
     }
+
+    public static List<User> toUserList(List<UserDto> allUsers) {
+        List<User> result = new ArrayList<>();
+        for (UserDto u : allUsers) {
+            result.add(toUser(u));
+        }
+
+        return result;
+    }
 }
