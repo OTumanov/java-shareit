@@ -6,7 +6,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.CommentMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +57,7 @@ public class ItemMapper {
                 .ownerId(item.getOwnerId())
                 .nextBooking(next)
                 .lastBooking(last)
+//                .requestId(item.getItemRequest().getId())
                 .build();
 
         if (comments != null) {
@@ -69,15 +69,19 @@ public class ItemMapper {
         return itemDto;
     }
 
-    public static Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .ownerId(itemDto.getOwnerId())
-                .build();
+    public static ItemDto toDto(Item item, List<Comment> comments) {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        if (comments != null) {
+            itemDto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
+        }
+        itemDto.setRequestId(item.getItemRequestId());
+        return itemDto;
     }
+
 
     public static List<ItemDto> toItemDtoList(List<Item> items) {
 
@@ -94,7 +98,7 @@ public class ItemMapper {
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
-        dto.setRequestId(item.getItemRequest().getId());
+        dto.setRequestId(item.getItemRequestId());
         dto.setOwner(item.getOwnerId());
         return dto;
     }
@@ -102,5 +106,25 @@ public class ItemMapper {
         return items.stream()
                 .map(ItemMapper::toRequestItemDto)
                 .collect(Collectors.toList());
+    }
+
+    public static Item toModel(ItemDto itemDto, Long ownerId) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwnerId(ownerId);
+        item.setItemRequestId(itemDto.getRequestId());
+        return item;
+    }
+
+    public static Item toItem(ItemDto itemDto) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwnerId(itemDto.getId());
+        item.setItemRequestId(itemDto.getRequestId());
+        return item;
     }
 }

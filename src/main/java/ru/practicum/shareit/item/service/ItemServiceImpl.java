@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.item.utils.CommentMapper;
 import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storge.UserRepository;
@@ -84,15 +85,29 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto createItem(Item item, Long userId) {
-        if (checkItem(item, userId)) {
-            item.setOwnerId(userId);
-
-            return ItemMapper.toItemDto(itemRepository.save(item));
-        } else {
-            throw new ValidationException("Не все поля заполнены!");
+    public ItemDto createItem(ItemDto itemDto, Long userId) {
+        if (checkItem(itemDto, userId)) {
+            itemDto.setOwnerId(userId);
         }
+            Item item = ItemMapper.toModel(itemDto, userId);
+            item = itemRepository.save(item);
+            return ItemMapper.toDto(item, null);
     }
+
+
+
+//    public ItemDto createItem(ItemDto itemDto, Long userId) {
+//        Item item = ItemMapper.toModel(itemDto, userId);
+//        boolean ownerExists = isOwnerExists(item.getOwner());
+//        if (!ownerExists) {
+//            throw new OwnerNotFoundException(OWNER_NOT_FOUND_MESSAGE + item.getOwner());
+//        }
+//        item = itemRepository.save(item);
+//        return ItemMapper.toDto(item, null);
+//    }
+
+
+
 
     @Override
     public Item updateItem(Long itemId, Long userId, Item item) {
@@ -151,12 +166,12 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentDetailedDto(comment);
     }
 
-    private boolean checkItem(Item item, Long userId) {
-        if (item.getAvailable() == null) {
+    private boolean checkItem(ItemDto itemDto, Long userId) {
+        if (itemDto.getAvailable() == null) {
             throw new ValidationException("Не указана доступность вещи");
-        } else if (item.getName() == null || item.getName().isBlank() || item.getName().isEmpty()) {
+        } else if (itemDto.getName() == null || itemDto.getName().isBlank() || itemDto.getName().isEmpty()) {
             throw new ValidationException("У вещи должно быть указано имя");
-        } else if (item.getDescription() == null || item.getDescription().isBlank() || item.getDescription().isEmpty()) {
+        } else if (itemDto.getDescription() == null || itemDto.getDescription().isBlank() || itemDto.getDescription().isEmpty()) {
             throw new ValidationException("У вещи должно быть указано описание");
         } else if (userService.findUserById(userId) == null) {
             throw new NotFoundException("Нет такого пользователя");

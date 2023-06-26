@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import org.hibernate.Hibernate;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -32,9 +31,8 @@ public class Item {
     @JoinColumn(name = "owner_id", nullable = false)
     private Long ownerId;
 
-    @ManyToOne
     @JoinColumn(name = "request_id")
-    private ItemRequest itemRequest;
+    private Long itemRequestId;
 
     @Override
     public boolean equals(Object o) {

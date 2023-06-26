@@ -46,7 +46,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         UserDto userDto = UserMapper.toDto(userService.findUserById(userId));
         ItemRequest itemRequest = requestsRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("request с id = %d не найден", requestId)));
-        itemRequest.setItems(itemRepository.findAllByItemRequest(itemRequest));
+        itemRequest.setItems(itemRepository.findAllByItemRequestId(itemRequest.getId()));
         ItemRequestDto itemRequestDto = RequestMapper.toDto(itemRequest);
         itemRequestDto.setRequester(userDto);
         return itemRequestDto;
@@ -66,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userService.findUserById(userId);
         Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
         return requestsRepository.findAllByRequesterIdIsNot(userId, page).stream()
-                .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByItemRequest(itemRequest)))
+                .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByItemRequestId(itemRequest.getId())))
                 .map(RequestMapper::toDto)
                 .collect(Collectors.toList());
 

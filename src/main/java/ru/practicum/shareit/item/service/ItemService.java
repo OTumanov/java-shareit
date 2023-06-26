@@ -12,7 +12,7 @@ public interface ItemService {
 
     List<ItemDto> findAllItemsByUserId(Long userId, Integer from, Integer size);
 
-    ItemDto createItem(Item item, Long userId);
+    ItemDto createItem(ItemDto itemDto, Long userId);
 
     Item updateItem(Long itemId, Long userId, Item item);
 

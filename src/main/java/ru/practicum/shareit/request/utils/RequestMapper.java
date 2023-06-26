@@ -50,7 +50,7 @@ public class RequestMapper {
                                                                       ItemRepository repository) {
         return requests.stream()
                 .map((ItemRequest request) -> {
-                    List<Item> items = repository.findAllByItemRequest(request.getId());
+                    List<Item> items = repository.findAllByItemRequestId(request.getId());
                     return RequestMapper.toRequestWithItemsDto(request, items);
                 }).collect(Collectors.toList());
     }
@@ -59,7 +59,7 @@ public class RequestMapper {
         List<RequestWithItemsDto> result = new ArrayList<>();
         if (requests != null && !requests.isEmpty()) {
             for (ItemRequest request : requests) {
-                List<Item> items = repository.findAllByItemRequest(request);
+                List<Item> items = repository.findAllByItemRequestId(request.getId());
                 System.out.println(items);
                 RequestWithItemsDto requestDto = RequestMapper.toRequestWithItemsDto(request, items);
                 result.add(requestDto);

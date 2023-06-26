@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package ru.practicum.shareit.item.utils;
 
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentFromDto;
@@ -31,6 +31,13 @@ public class CommentMapper {
     }
 
     public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
+        return comments.stream()
+                .map(CommentMapper::toCommentDetailedDto)
+                .collect(Collectors.toList());
+    }
+
+
+    public static List<CommentDto> toCommentDetailedDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(CommentMapper::toCommentDetailedDto)
                 .collect(Collectors.toList());
