@@ -17,22 +17,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserById(Long id) {
+
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого пользователя"));
     }
 
     @Override
     public List<User> findAllUsers() {
+
         return userRepository.findAll();
     }
 
     @Override
     public User createUser(User user) {
+
         return userRepository.save(user);
     }
 
     @Override
     public User updateUser(Long userId, User user) {
         User updateUser = patchUser(userId, user);
+
         return userRepository.save(updateUser);
     }
 
@@ -52,6 +56,7 @@ public class UserServiceImpl implements UserService {
         if (!oldEmail.equals(newEmail) && newEmail != null && !newEmail.isBlank()) {
             patchedUser.setEmail(newEmail);
         }
+
         return patchedUser;
     }
 }

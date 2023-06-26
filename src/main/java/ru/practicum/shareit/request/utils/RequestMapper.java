@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 public class RequestMapper {
     public static ItemRequestDto toDto(ItemRequest itemRequest) {
+
         return ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
@@ -30,13 +31,6 @@ public class RequestMapper {
                 .build();
     }
 
-    public static ItemRequest fromDto(ItemRequestDto itemRequestDto) {
-        return ItemRequest.builder()
-                .id(itemRequestDto.getId())
-                .description(itemRequestDto.getDescription())
-                .build();
-    }
-
     public static RequestWithItemsDto toRequestWithItemsDto(ItemRequest request, List<Item> items) {
         List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
         RequestWithItemsDto dto = new RequestWithItemsDto();
@@ -44,11 +38,12 @@ public class RequestMapper {
         dto.setDescription(request.getDescription());
         dto.setCreated(request.getCreated());
         dto.setItems(itemDtos);
+
         return dto;
     }
 
-    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(Page<ItemRequest> requests,
-                                                                      ItemRepository repository) {
+    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(Page<ItemRequest> requests, ItemRepository repository) {
+
         return requests.stream()
                 .map((ItemRequest request) -> {
                     List<Item> items = repository.findAllByItemRequestId(request.getId());
@@ -65,6 +60,7 @@ public class RequestMapper {
                 result.add(requestDto);
             }
         }
+        
         return result;
     }
 }

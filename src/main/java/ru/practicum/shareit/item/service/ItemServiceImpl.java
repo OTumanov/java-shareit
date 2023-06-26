@@ -51,9 +51,6 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item, null, null, comments);
     }
 
-    private Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-    }
 
     @Transactional
     @Override
@@ -91,6 +88,7 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = ItemMapper.toModel(itemDto, userId);
         item = itemRepository.save(item);
+
         return ItemMapper.toDto(item, null);
     }
 
@@ -111,6 +109,7 @@ public class ItemServiceImpl implements ItemService {
                     .available(available)
                     .ownerId(userId)
                     .build();
+
             return itemRepository.save(updatedItem);
         } else {
             throw new AccessException("Доступ запрещен");
@@ -191,5 +190,9 @@ public class ItemServiceImpl implements ItemService {
                 .min(Comparator.comparing(Booking::getStart)).orElse(null);
 
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
+    }
+
+    private Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 }

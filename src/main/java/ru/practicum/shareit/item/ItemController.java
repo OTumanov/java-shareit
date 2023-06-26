@@ -24,7 +24,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId,
                                @RequestHeader(name = USER_ID_HEADER) Long userId) {
-        log.info("Запрос вещи с id = {}", itemId);
+        log.info("Запрос на получение вещи с id = {}", itemId);
         return itemService.getItemById(itemId, userId);
     }
 
@@ -32,7 +32,7 @@ public class ItemController {
     public List<ItemDto> getAllItems(@RequestHeader(name = USER_ID_HEADER) Long userId,
                                      @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                      @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Запрос всех вещей пользователя с id = {}", userId);
+        log.info("Запрос на получение всех вещей");
         return itemService.findAllItemsByUserId(userId, from, size);
     }
 
@@ -61,7 +61,7 @@ public class ItemController {
     public List<ItemDto> searchItems(@RequestParam String text,
                                      @PositiveOrZero @RequestHeader(defaultValue = "0") Integer from,
                                      @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Запрос на поиск вещей с текстом = {}", text);
+        log.info("Запрос на поиск вещей");
         return ItemMapper.toItemDtoList(itemService.search(text, from, size));
     }
 
@@ -70,6 +70,7 @@ public class ItemController {
     public CommentDto createComment(@RequestBody CreateCommentFromDto commentDto,
                                     @PathVariable Long itemId,
                                     @RequestHeader(USER_ID_HEADER) Long userId) {
+        log.info("Запрос на создание комментария");
         return itemService.createComment(commentDto, itemId, userId);
     }
 

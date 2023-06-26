@@ -8,8 +8,6 @@ import java.util.List;
 public interface ItemRequestService {
     ItemRequestDto addRequest(Long userId, ItemRequestDto itemRequestDto);
 
-    ItemRequestDto getById(Long userId, Long requestId);
-
     List<RequestWithItemsDto> findAllByUserId(Long userId);
 
     List<RequestWithItemsDto> getAllRequest(Long userId, int from, int size);

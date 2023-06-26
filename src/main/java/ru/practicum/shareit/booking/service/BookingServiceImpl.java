@@ -5,9 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingDetailedDto;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
@@ -35,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking findById(Long bookingId, Long userId) {
-        userRepository.findById(userId);
+        checkUser(userId);
         Optional<Booking> booking = bookingRepository.findById(bookingId);
 
         if (booking.isEmpty()) {
@@ -49,89 +51,86 @@ public class BookingServiceImpl implements BookingService {
         if (!(userId.equals(bookingOwner) || userId.equals(itemOwner))) {
             throw new NotFoundException("Это не принадлежит пользователю " + userId);
         }
+
         return result;
     }
 
     @Override
-    public List<Booking> findAllByBooker(String state, Long userId, Integer from, Integer size) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+    public List<BookingDetailedDto> findAllByBooker(String state, Long userId, Integer from, Integer size) {
+        checkUser(userId);
+        checkPageAndSize(from, size);
 
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Некорректные параметры");
-        }
-
-        Pageable page = PageRequest.of(from / size, size);
         List<Booking> bookings;
         BookingStatus status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
         Sort sort = Sort.by("start").descending();
 
+        Pageable page = PageRequest.of(from / size, size, sort);
 
         switch (status) {
             case REJECTED:
-                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, page);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, page).toList();
                 break;
             case WAITING:
-                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, page);
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, page).toList();
                 break;
             case CURRENT:
-                bookings = bookingRepository.findByBookerIdCurrent(userId, now, page);
+                bookings = bookingRepository.findByBookerIdCurrent(userId, now, page).toList();
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByBookerIdAndStartIsAfter(userId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndStartIsAfter(userId, now, page).toList();
                 break;
             case PAST:
-                bookings = bookingRepository.findByBookerIdAndEndIsBefore(userId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndEndIsBefore(userId, now, page).toList();
                 break;
             case ALL:
-                bookings = bookingRepository.findByBookerId(userId, sort);
+                bookings = bookingRepository.findByBookerId(userId, page).toList();
                 break;
             default:
                 throw new IllegalArgumentException("Со статусом какая-то беда...");
         }
-        return bookings;
 
+        return BookingMapper.toListDetailedDto(bookings);
     }
 
     @Override
     public List<Booking> findAllByItemOwner(String state, Long userId, Integer from, Integer size) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Некорректные параметры");
-        }
-        Pageable page = PageRequest.of(from / size, size);
+        checkUser(userId);
+        checkPageAndSize(from, size);
         List<Booking> bookings;
         BookingStatus status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
         Sort sort = Sort.by("start").descending();
+        Pageable page = PageRequest.of(from / size, size, sort);
 
         switch (status) {
             case REJECTED:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndStatus(userId, REJECTED, page);
+                        .findBookingByItemOwnerIdAndStatus(userId, REJECTED, page).toList();
                 break;
             case WAITING:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndStatus(userId, WAITING, page);
+                        .findBookingByItemOwnerIdAndStatus(userId, WAITING, page).toList();
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now, page);
                 break;
             case FUTURE:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndStartIsAfter(userId, now, sort);
+                        .findBookingByItemOwnerIdAndStartIsAfter(userId, now, page).toList();
                 break;
             case PAST:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerIdAndEndIsBefore(userId, now, sort);
+                        .findBookingByItemOwnerIdAndEndIsBefore(userId, now, page).toList();
                 break;
             case ALL:
                 bookings = bookingRepository
-                        .findBookingByItemOwnerId(userId, sort);
+                        .findBookingByItemOwnerId(userId, page).toList();
                 break;
             default:
                 throw new IllegalArgumentException("Со статусом какая-то беда...");
         }
+
         return bookings;
     }
 
@@ -168,6 +167,7 @@ public class BookingServiceImpl implements BookingService {
                 .status(WAITING)
                 .build();
         bookingRepository.save(booking);
+
         return booking;
     }
 
@@ -192,6 +192,7 @@ public class BookingServiceImpl implements BookingService {
 
         patchedBooking.setStatus(status);
         bookingRepository.save(patchedBooking);
+
         return patchedBooking;
     }
 
@@ -202,10 +203,21 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         }
+
         return status;
     }
 
     private BookingStatus convertToStatus(Boolean approved) {
         return approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
+    }
+
+    private void checkPageAndSize(Integer page, Integer size) {
+        if (page < 0 || size < 0) {
+            throw new ValidationException("Параметры не могут быть меньше ноля");
+        }
+    }
+
+    private void checkUser(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 }

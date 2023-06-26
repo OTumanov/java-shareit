@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/requests")
@@ -20,12 +22,14 @@ public class ItemRequestController {
 
     @GetMapping
     public List<RequestWithItemsDto> findAllByUserId(@RequestHeader(value = HEADER_USER_ID) Long userId) {
+        log.info("Запрос на получение всех вещей пользователя с id = {}", userId);
         return requestService.findAllByUserId(userId);
     }
 
     @GetMapping("/{requestId}")
     public RequestWithItemsDto findById(@PathVariable Long requestId,
                                         @RequestHeader(value = HEADER_USER_ID) Long userId) {
+        log.info("Запрос на получение вещи с id = {}", requestId);
         return requestService.findById(requestId, userId);
     }
 
@@ -34,6 +38,7 @@ public class ItemRequestController {
             @RequestHeader(value = HEADER_USER_ID) Long userId,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Запрос на получение всех вещей пользователя с id = {}", userId);
         return requestService.getAllRequest(userId, from, size);
     }
 
@@ -41,6 +46,7 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto addRequest(@RequestHeader(value = HEADER_USER_ID) Long userId,
                                      @Valid @RequestBody ItemRequestDto itemRequestDto) {
+        log.info("Запрос на добавление вещи");
         return requestService.addRequest(userId, itemRequestDto);
     }
 }

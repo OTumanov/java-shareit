@@ -25,7 +25,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public BookingDetailedDto findById(@PathVariable Long bookingId,
                                        @RequestHeader(USER_ID_HEADER) Long userId) {
-        log.info("Запрос bookingId={}, userId={}", bookingId, userId);
+        log.info("Запрос бронирования с id = {}", bookingId);
         return BookingMapper.toBookingDetailedDto(bookingService.findById(bookingId, userId));
     }
 
@@ -34,14 +34,17 @@ public class BookingController {
                                                     @RequestHeader(USER_ID_HEADER) Long userId,
                                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
-        return BookingMapper.toListDetailedDto(bookingService.findAllByBooker(state, userId, from, size));
+        log.info("Запрос всех бронирований пользователя с id = {}", userId);
+        return bookingService.findAllByBooker(state, userId, from, size);
     }
+
 
     @GetMapping("/owner")
     public List<BookingDetailedDto> findAllByItemOwner(@RequestParam(defaultValue = "ALL") String state,
                                                        @RequestHeader(USER_ID_HEADER) Long userId,
                                                        @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                        @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Запрос всех бронирований пользователя с id = {}", userId);
         return BookingMapper.toListDetailedDto(bookingService.findAllByItemOwner(state, userId, from, size));
     }
 
@@ -49,7 +52,7 @@ public class BookingController {
     @PostMapping
     public BookingPostResponseDto createBooking(@RequestBody BookingPostDto bookingPostDto,
                                                 @RequestHeader(USER_ID_HEADER) Long userId) {
-        log.info("Запрос на бронирование вещи bookingPost={}, userId={}", bookingPostDto, userId);
+        log.info("Запрос на создание бронирования");
         return BookingMapper.toBookingPostResponseDto(bookingService.createBooking(bookingPostDto, userId));
     }
 
@@ -57,7 +60,7 @@ public class BookingController {
     public BookingResponseDto patchBooking(@PathVariable Long bookingId,
                                            @RequestParam Boolean approved,
                                            @RequestHeader(USER_ID_HEADER) Long userId) {
-        log.info("Запрос на обновление bookingId={}, approved={}, userId={}", bookingId, approved, userId);
+        log.info("Запрос на обновление бронирования с id = {}", bookingId);
         return BookingMapper.toBookingResponseDto(bookingService.patchBooking(bookingId, approved, userId));
     }
 }

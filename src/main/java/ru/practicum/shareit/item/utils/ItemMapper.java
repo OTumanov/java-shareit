@@ -77,28 +77,17 @@ public class ItemMapper {
             itemDto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
         }
         itemDto.setRequestId(item.getItemRequestId());
+
         return itemDto;
     }
 
-
     public static List<ItemDto> toItemDtoList(List<Item> items) {
-
         List<ItemDto> result = new ArrayList<>();
         for (Item item : items) {
             result.add(toItemDto(item));
         }
-        return result;
-    }
 
-    public static ItemInRequestDto toRequestItemDto(Item item) {
-        ItemInRequestDto dto = new ItemInRequestDto();
-        dto.setId(item.getOwnerId());
-        dto.setName(item.getName());
-        dto.setDescription(item.getDescription());
-        dto.setAvailable(item.getAvailable());
-        dto.setRequestId(item.getItemRequestId());
-        dto.setOwner(item.getOwnerId());
-        return dto;
+        return result;
     }
 
     public static List<ItemInRequestDto> toRequestItemDtoList(List<Item> items) {
@@ -115,6 +104,7 @@ public class ItemMapper {
                     .build();
             result.add(dto);
         }
+
         return result;
     }
 
@@ -125,6 +115,7 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         item.setOwnerId(ownerId);
         item.setItemRequestId(itemDto.getRequestId());
+
         return item;
     }
 
@@ -135,6 +126,7 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         item.setOwnerId(itemDto.getId());
         item.setItemRequestId(itemDto.getRequestId());
+
         return item;
     }
 }
