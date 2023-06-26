@@ -15,24 +15,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerIdAndEndIsBefore(Long bookerId, LocalDateTime now, Sort sort);
 
     List<Booking> findByBookerIdAndStartIsAfter(Long bookerId, LocalDateTime now, Sort sort);
+
     List<Booking> findByBookerIdAndStartIsAfter(Long bookerId, LocalDateTime now, Pageable pageable);
 
     List<Booking> findByBookerIdAndStatus(Long bookerId, BookingStatus status, Sort sort);
+
     List<Booking> findByBookerIdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
+    //    List<Booking> findByBookerId(Long bookerId, Sort sort);
     List<Booking> findByBookerId(Long bookerId, Sort sort);
 
-    List<Booking> findBookingByItemOwnerIdAndStatus(Long bookerId, BookingStatus status, Sort sort);
     List<Booking> findBookingByItemOwnerIdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
     List<Booking> findBookingByItemOwnerIdAndEndIsBefore(Long bookerId, LocalDateTime now, Sort sort);
-    List<Booking> findBookingByItemOwnerIdAndEndIsBefore(Long bookerId, LocalDateTime now, Pageable pageable);
 
     List<Booking> findBookingByItemOwnerIdAndStartIsAfter(Long bookerId, LocalDateTime now, Sort sort);
-    List<Booking> findBookingByItemOwnerIdAndStartIsAfter(Long bookerId, LocalDateTime now, Pageable pageable);
 
     List<Booking> findBookingByItemOwnerId(Long bookerId, Sort sort);
-    List<Booking> findBookingByItemOwnerId(Long bookerId, Pageable pageable);
 
     @Query("select b from Booking b " +
             "where b.booker.id = ?1 " +
