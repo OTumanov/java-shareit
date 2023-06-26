@@ -54,36 +54,6 @@ class UserControllerTest {
     }
 
     @Test
-    void addInvalidUserTest() throws Exception {
-        User emptyNameUser = new User(1L, "", "test@email.com");
-        User invalidEmailUser = new User(1L, "testUser", "testemail.com");
-        User emptyEmailUser = new User(1L, "testUser", "");
-        when(userService.createUser(any()))
-                .thenReturn(user);
-
-        mvc.perform(post(BASE_PATH_USERS)
-                        .content(mapper.writeValueAsString(emptyNameUser))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        mvc.perform(post(BASE_PATH_USERS)
-                        .content(mapper.writeValueAsString(invalidEmailUser))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        mvc.perform(post(BASE_PATH_USERS)
-                        .content(mapper.writeValueAsString(emptyEmailUser))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getUserByIdTest() throws Exception {
         when(userService.findUserById(any()))
                 .thenReturn(user);
@@ -131,4 +101,33 @@ class UserControllerTest {
                 .deleteUserById(anyLong());
     }
 
+    @Test
+    void addInvalidUserTest() throws Exception {
+        User emptyNameUser = new User(1L, "", "test@email.com");
+        User invalidEmailUser = new User(1L, "testUser", "testemail.com");
+        User emptyEmailUser = new User(1L, "testUser", "");
+        when(userService.createUser(any()))
+                .thenReturn(user);
+
+        mvc.perform(post(BASE_PATH_USERS)
+                        .content(mapper.writeValueAsString(emptyNameUser))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(post(BASE_PATH_USERS)
+                        .content(mapper.writeValueAsString(invalidEmailUser))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(post(BASE_PATH_USERS)
+                        .content(mapper.writeValueAsString(emptyEmailUser))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }
