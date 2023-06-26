@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ItemMapper {
     public static ItemDto toItemDto(Item item) {
@@ -57,7 +56,6 @@ public class ItemMapper {
                 .ownerId(item.getOwnerId())
                 .nextBooking(next)
                 .lastBooking(last)
-//                .requestId(item.getItemRequest().getId())
                 .build();
 
         if (comments != null) {
@@ -102,10 +100,22 @@ public class ItemMapper {
         dto.setOwner(item.getOwnerId());
         return dto;
     }
+
     public static List<ItemInRequestDto> toRequestItemDtoList(List<Item> items) {
-        return items.stream()
-                .map(ItemMapper::toRequestItemDto)
-                .collect(Collectors.toList());
+        List<ItemInRequestDto> result = new ArrayList<>();
+
+        for (Item item : items) {
+            ItemInRequestDto dto = ItemInRequestDto.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .available(item.getAvailable())
+                    .requestId(item.getItemRequestId())
+                    .owner(item.getOwnerId())
+                    .build();
+            result.add(dto);
+        }
+        return result;
     }
 
     public static Item toModel(ItemDto itemDto, Long ownerId) {
