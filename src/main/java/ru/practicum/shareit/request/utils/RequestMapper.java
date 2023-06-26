@@ -21,6 +21,7 @@ public class RequestMapper {
                 .description(itemRequest.getDescription())
                 .created(itemRequest.getCreated())
                 .requester(UserMapper.toDto(itemRequest.getRequester()))
+                .requestId(itemRequest.getRequester().getId())
                 .items(itemRequest.getItems() != null ? itemRequest.getItems()
                         .stream()
                         .map(ItemMapper::toItemDto)
@@ -37,9 +38,7 @@ public class RequestMapper {
     }
 
     public static RequestWithItemsDto toRequestWithItemsDto(ItemRequest request, List<Item> items) {
-        System.out.println("---->>> " + items);
         List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
-        System.out.println("---->>> " + itemDtos);
         RequestWithItemsDto dto = new RequestWithItemsDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());

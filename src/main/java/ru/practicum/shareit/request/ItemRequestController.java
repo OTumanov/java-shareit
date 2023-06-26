@@ -23,8 +23,14 @@ public class ItemRequestController {
         return requestService.findAllByUserId(userId);
     }
 
+    @GetMapping("/{requestId}")
+    public RequestWithItemsDto findById(@PathVariable Long requestId,
+                                        @RequestHeader(value = HEADER_USER_ID) Long userId) {
+        return requestService.findById(requestId, userId);
+    }
+
     @GetMapping("/all")
-    public List<ItemRequestDto> getAllRequests(
+    public List<RequestWithItemsDto> getAllRequests(
             @RequestHeader(value = HEADER_USER_ID) Long userId,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
