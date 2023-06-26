@@ -2,10 +2,10 @@ package ru.practicum.shareit.request.utils;
 
 import org.springframework.data.domain.Page;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.utils.UserMapper;

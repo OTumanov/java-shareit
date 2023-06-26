@@ -29,7 +29,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final RequestsRepository requestsRepository;
     private final UserService userService;
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
 
     @Override
     public ItemRequestDto addRequest(long userId, ItemRequestDto itemRequestDto) {

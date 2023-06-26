@@ -89,25 +89,10 @@ public class ItemServiceImpl implements ItemService {
         if (checkItem(itemDto, userId)) {
             itemDto.setOwnerId(userId);
         }
-            Item item = ItemMapper.toModel(itemDto, userId);
-            item = itemRepository.save(item);
-            return ItemMapper.toDto(item, null);
+        Item item = ItemMapper.toModel(itemDto, userId);
+        item = itemRepository.save(item);
+        return ItemMapper.toDto(item, null);
     }
-
-
-
-//    public ItemDto createItem(ItemDto itemDto, Long userId) {
-//        Item item = ItemMapper.toModel(itemDto, userId);
-//        boolean ownerExists = isOwnerExists(item.getOwner());
-//        if (!ownerExists) {
-//            throw new OwnerNotFoundException(OWNER_NOT_FOUND_MESSAGE + item.getOwner());
-//        }
-//        item = itemRepository.save(item);
-//        return ItemMapper.toDto(item, null);
-//    }
-
-
-
 
     @Override
     public Item updateItem(Long itemId, Long userId, Item item) {
