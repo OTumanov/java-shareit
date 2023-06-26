@@ -22,14 +22,12 @@ import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storge.UserRepository;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,11 +84,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item createItem(Item item, Long userId) {
+    public ItemDto createItem(Item item, Long userId) {
         if (checkItem(item, userId)) {
             item.setOwnerId(userId);
 
-            return itemRepository.save(item);
+            return ItemMapper.toItemDto(itemRepository.save(item));
         } else {
             throw new ValidationException("Не все поля заполнены!");
         }

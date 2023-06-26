@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestsRepository;
 import ru.practicum.shareit.request.utils.RequestMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.storge.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
 
 
@@ -27,6 +29,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final RequestsRepository requestsRepository;
     private final UserService userService;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ItemRequestDto addRequest(long userId, ItemRequestDto itemRequestDto) {
@@ -50,12 +53,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> findAllByUserId(long userId) {
-        userService.findUserById(userId);
-        return requestsRepository.findAllByRequesterIdOrderByCreatedDesc(userId).stream()
-                .peek(itemRequest -> itemRequest.setItems(itemRepository.findAllByItemRequest(itemRequest)))
-                .map(RequestMapper::toDto)
-                .collect(Collectors.toList());
+    public List<RequestWithItemsDto> findAllByUserId(long userId) {
+        List<ItemRequest> requests = requestsRepository.findItemRequestByRequesterOrderByCreatedDesc(userService.findUserById(userId));
+        return RequestMapper.toRequestWithItemsDtoList(requests, itemRepository);
     }
 
     @Override

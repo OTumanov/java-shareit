@@ -40,7 +40,7 @@ public class ItemController {
     public ItemDto createItem(@RequestBody ItemDto itemDto,
                               @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание вещи");
-        return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
+        return itemService.createItem(ItemMapper.toItem(itemDto), userId);
     }
 
     @PatchMapping("/{itemId}")

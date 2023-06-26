@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
@@ -15,10 +16,10 @@ import java.util.List;
 @Validated
 public class ItemRequestController {
     private final ItemRequestService requestService;
-    static final String HEADER_USER_ID = "X-Sharer-User-Id";
+    final String HEADER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemRequestDto> findAllByUserId(@RequestHeader(value = HEADER_USER_ID) Long userId) {
+    public List<RequestWithItemsDto> findAllByUserId(@RequestHeader(value = HEADER_USER_ID) Long userId) {
         return requestService.findAllByUserId(userId);
     }
 
