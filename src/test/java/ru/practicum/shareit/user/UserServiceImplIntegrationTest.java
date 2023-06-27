@@ -72,24 +72,25 @@ public class UserServiceImplIntegrationTest {
     @Test
     void editUser() {
         User user1 = new User(1L, "testUser", "test@email.com");
-        User userToUpdate = new User(1L, "testUserUpdate", "testUserUpdate@email.com");
-        User userToUpdate2 = new User(1L, "testUserUpdate", "testUserUpdate2@email.com");
-        User userToUpdate3 = new User(1L, "testUserUpdate3", "testUserUpdate@email.com");
+
+        User userUpdate1 = new User(1L, "testUserUpdate", "testUserUpdate@email.com");
+        User userUpdate2 = new User(1L, "testUserUpdate", "testUserUpdate2@email.com");
+        User userUpdate3 = new User(1L, "testUserUpdate3", "testUserUpdate@email.com");
 
         userService.createUser(user1);
 
-        User updatedUser = userService.updateUser(1L, userToUpdate);
+        User updatedUser = userService.updateUser(1L, userUpdate1);
 
-        assertThat(updatedUser.getName(), equalTo(userToUpdate.getName()));
-        assertThat(updatedUser.getEmail(), equalTo(userToUpdate.getEmail()));
+        assertThat(updatedUser.getName(), equalTo(userUpdate1.getName()));
+        assertThat(updatedUser.getEmail(), equalTo(userUpdate1.getEmail()));
 
-        updatedUser = userService.updateUser(1L, userToUpdate2);
+        updatedUser = userService.updateUser(1L, userUpdate2);
 
-        assertThat(updatedUser.getEmail(), equalTo(userToUpdate2.getEmail()));
+        assertThat(updatedUser.getEmail(), equalTo(userUpdate2.getEmail()));
 
-        updatedUser = userService.updateUser(1L, userToUpdate3);
+        updatedUser = userService.updateUser(1L, userUpdate3);
 
-        assertThat(updatedUser.getName(), equalTo(userToUpdate3.getName()));
+        assertThat(updatedUser.getName(), equalTo(userUpdate3.getName()));
     }
 
     @Test
