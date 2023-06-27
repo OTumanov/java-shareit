@@ -17,18 +17,21 @@ import java.util.stream.Collectors;
 public class RequestMapper {
     public static ItemRequestDto toDto(ItemRequest itemRequest) {
 
-        return ItemRequestDto.builder()
+        ItemRequestDto dto = ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
                 .created(itemRequest.getCreated())
                 .requester(UserMapper.toDto(itemRequest.getRequester()))
-                .requestId(itemRequest.getRequester().getId())
                 .items(itemRequest.getItems() != null ? itemRequest.getItems()
                         .stream()
                         .map(ItemMapper::toItemDto)
                         .collect(Collectors.toList())
                         : new ArrayList<>())
                 .build();
+
+        System.out.println(dto);
+
+        return dto;
     }
 
     public static RequestWithItemsDto toRequestWithItemsDto(ItemRequest request, List<Item> items) {
@@ -60,7 +63,7 @@ public class RequestMapper {
                 result.add(requestDto);
             }
         }
-        
+
         return result;
     }
 }

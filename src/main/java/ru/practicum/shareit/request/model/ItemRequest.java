@@ -1,9 +1,6 @@
 package ru.practicum.shareit.request.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -16,6 +13,7 @@ import java.util.List;
 @Table(name = "requests")
 @Data
 @Builder
+@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("ALL")
