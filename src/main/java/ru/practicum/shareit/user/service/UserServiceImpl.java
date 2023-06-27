@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        if(user.getName().isBlank() || user.getEmail().isBlank()) {
+        if (user.getName().isBlank() || user.getEmail().isBlank()) {
             throw new IllegalArgumentException("Некорректные данные");
         }
         return userRepository.save(user);
