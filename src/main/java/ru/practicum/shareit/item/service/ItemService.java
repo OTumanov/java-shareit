@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentFromDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -23,4 +24,9 @@ public interface ItemService {
     CommentDto createComment(CreateCommentFromDto commentDto, Long itemId, Long userId);
 
     void checkItem(ItemDto itemDto, Long userId);
+
+    List<ItemDto> searchAvailableItems(String text, int from, int size);
+
+    @Transactional
+    Long getOwnerId(Long itemId);
 }

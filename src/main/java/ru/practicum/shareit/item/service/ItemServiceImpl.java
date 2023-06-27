@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -160,6 +161,25 @@ public class ItemServiceImpl implements ItemService {
         } else if (userService.findUserById(userId) == null) {
             throw new NotFoundException("Нет такого пользователя");
         }
+    }
+
+    @Transactional
+    @Override
+    public List<ItemDto> searchAvailableItems(String text, int from, int size) {
+        Pageable page = PageRequest.of(from / size, size);
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
+        }
+        return itemRepository.searchAvailableItems(text, page).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    @Override
+    public Long getOwnerId(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена")).getOwnerId();
     }
 
     private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {
