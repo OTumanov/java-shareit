@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllByItemIdAndBookerIdAndStatusIsAndEndIsBefore(Long itemId, Long bookerId, LocalDateTime now, Pageable pageable);
+//    List<Booking> findAllByItemIdAndBookerIdAndStatusIsAndEndIsBefore(Long itemId, Long bookerId, LocalDateTime now, Pageable pageable);
     Page<Booking> findByBookerIdAndEndIsBefore(Long bookerId, LocalDateTime now, Pageable pageable);
 
     Page<Booking> findByBookerIdAndStartIsAfter(Long bookerId, LocalDateTime now, Pageable pageable);
