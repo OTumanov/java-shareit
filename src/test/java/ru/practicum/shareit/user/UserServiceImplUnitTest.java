@@ -52,6 +52,7 @@ class UserServiceImplUnitTest {
         when(userRepository.findById(anyLong())).thenReturn(empty());
 
         Exception exception = Assertions.assertThrows(NotFoundException.class, () -> userService.findUserById(1L));
+
         assertThat(exception.getMessage(), equalTo("Нет такого пользователя"));
     }
 
@@ -60,6 +61,7 @@ class UserServiceImplUnitTest {
         when(userRepository.findAll()).thenReturn(List.of(user1, user2));
 
         List<User> users = userService.findAllUsers();
+
         assertThat(users, equalTo(List.of(user1, user2)));
     }
 
@@ -76,12 +78,14 @@ class UserServiceImplUnitTest {
         when(userRepository.findById(anyLong())).thenReturn(empty());
 
         Exception exception = Assertions.assertThrows(NotFoundException.class, () -> userService.findUserById(1L));
+
         assertThat(exception.getMessage(), equalTo(("Нет такого пользователя")));
     }
 
     @Test
     public void deleteUser_shouldDeleteUser() {
         userService.deleteUserById(anyLong());
+
         verify(userRepository, times(1)).deleteById(anyLong());
     }
 }

@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.utils.ItemMapper;
 
+import javax.validation.ValidationException;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -40,6 +41,9 @@ public class ItemController {
     public ItemDto createItem(@RequestBody ItemDto itemDto,
                               @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание вещи");
+        if (itemDto.getName().isEmpty() || itemDto.getDescription() == null || itemDto.getDescription().isEmpty() || itemDto.getAvailable() == null) {
+            throw new ValidationException("Имя и описание должны быть заполнены!");
+        }
         return itemService.createItem(itemDto, userId);
     }
 
@@ -71,6 +75,9 @@ public class ItemController {
                                     @PathVariable Long itemId,
                                     @RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание комментария");
+        if (commentDto.getText().isEmpty()) {
+            throw new ValidationException("Текст комментария не может быть пустым!");
+        }
         return itemService.createComment(commentDto, itemId, userId);
     }
 

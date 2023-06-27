@@ -83,9 +83,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
-        if (checkItem(itemDto, userId)) {
-            itemDto.setOwnerId(userId);
-        }
+        checkItem(itemDto, userId);
+        itemDto.setOwnerId(userId);
         Item item = ItemMapper.toModel(itemDto, userId);
         item = itemRepository.save(item);
 
@@ -150,7 +149,8 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentDetailedDto(comment);
     }
 
-    private boolean checkItem(ItemDto itemDto, Long userId) {
+    @Override
+    public void checkItem(ItemDto itemDto, Long userId) {
         if (itemDto.getAvailable() == null) {
             throw new ValidationException("Не указана доступность вещи");
         } else if (itemDto.getName() == null || itemDto.getName().isBlank() || itemDto.getName().isEmpty()) {
@@ -160,8 +160,6 @@ public class ItemServiceImpl implements ItemService {
         } else if (userService.findUserById(userId) == null) {
             throw new NotFoundException("Нет такого пользователя");
         }
-
-        return true;
     }
 
     private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {

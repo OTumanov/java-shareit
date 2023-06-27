@@ -58,8 +58,9 @@ public class UserServiceImplIntegrationTest {
     @Test
     void getAllUsers() {
         User user1 = new User(1L, "testUser", "test@email.com");
-        userService.createUser(user1);
         User user2 = new User(2L, "test1User", "test1@email.com");
+
+        userService.createUser(user1);
         userService.createUser(user2);
 
         var usersList = userService.findAllUsers();

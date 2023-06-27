@@ -55,8 +55,7 @@ class UserControllerTest {
 
     @Test
     void getUserByIdTest() throws Exception {
-        when(userService.findUserById(any()))
-                .thenReturn(user);
+        when(userService.findUserById(any())).thenReturn(user);
 
         mvc.perform(get(BASE_PATH_USERS + "/1"))
                 .andExpect(status().isOk())
@@ -67,8 +66,7 @@ class UserControllerTest {
 
     @Test
     void getAllUsersTest() throws Exception {
-        when(userService.findAllUsers())
-                .thenReturn(List.of(user));
+        when(userService.findAllUsers()).thenReturn(List.of(user));
 
         mvc.perform(get(BASE_PATH_USERS))
                 .andExpect(status().isOk())
@@ -79,8 +77,7 @@ class UserControllerTest {
 
     @Test
     void updateUserTest() throws Exception {
-        when(userService.updateUser(any(), any()))
-                .thenReturn(user);
+        when(userService.updateUser(any(), any())).thenReturn(user);
 
         mvc.perform(patch(BASE_PATH_USERS + "/1")
                         .content(mapper.writeValueAsString(user))
@@ -95,10 +92,9 @@ class UserControllerTest {
 
     @Test
     void deleteUserTest() throws Exception {
-        mvc.perform(delete(BASE_PATH_USERS + "/1"))
-                .andExpect(status().isOk());
-        verify(userService, times(1))
-                .deleteUserById(anyLong());
+        mvc.perform(delete(BASE_PATH_USERS + "/1")).andExpect(status().isOk());
+
+        verify(userService, times(1)).deleteUserById(anyLong());
     }
 
     @Test
@@ -106,8 +102,8 @@ class UserControllerTest {
         User emptyNameUser = new User(1L, "", "test@email.com");
         User invalidEmailUser = new User(1L, "testUser", "testemail.com");
         User emptyEmailUser = new User(1L, "testUser", "");
-        when(userService.createUser(any()))
-                .thenReturn(user);
+
+        when(userService.createUser(any())).thenReturn(user);
 
         mvc.perform(post(BASE_PATH_USERS)
                         .content(mapper.writeValueAsString(emptyNameUser))

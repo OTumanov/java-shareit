@@ -21,4 +21,6 @@ public interface ItemService {
     List<Item> search(String text, Integer from, Integer size);
 
     CommentDto createComment(CreateCommentFromDto commentDto, Long itemId, Long userId);
+
+    void checkItem(ItemDto itemDto, Long userId);
 }
