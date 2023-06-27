@@ -18,24 +18,24 @@ import java.util.List;
 @Validated
 public class ItemRequestController {
     private final ItemRequestService requestService;
-    final String USER_ID_HEADER = "X-Sharer-User-Id";
+    final String USERIDHEADER = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<RequestWithItemsDto> findAllByUserId(@RequestHeader(value = USER_ID_HEADER) Long userId) {
+    public List<RequestWithItemsDto> findAllByUserId(@RequestHeader(value = USERIDHEADER) Long userId) {
         log.info("Запрос на получение всех вещей пользователя с id = {}", userId);
         return requestService.findAllByUserId(userId);
     }
 
     @GetMapping("/{requestId}")
     public RequestWithItemsDto findById(@PathVariable Long requestId,
-                                        @RequestHeader(value = USER_ID_HEADER) Long userId) {
+                                        @RequestHeader(value = USERIDHEADER) Long userId) {
         log.info("Запрос на получение вещи с id = {}", requestId);
         return requestService.findById(requestId, userId);
     }
 
     @GetMapping("/all")
     public List<RequestWithItemsDto> getAllRequests(
-            @RequestHeader(value = USER_ID_HEADER) Long userId,
+            @RequestHeader(value = USERIDHEADER) Long userId,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
         log.info("Запрос на получение всех вещей пользователя с id = {}", userId);
@@ -44,7 +44,7 @@ public class ItemRequestController {
 
 
     @PostMapping
-    public ItemRequestDto addRequest(@RequestHeader(value = USER_ID_HEADER) Long userId,
+    public ItemRequestDto addRequest(@RequestHeader(value = USERIDHEADER) Long userId,
                                      @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Запрос на добавление вещи");
         return requestService.addRequest(userId, itemRequestDto);
