@@ -20,13 +20,13 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Long id) {
         log.info("Получен запрос на получение пользователя с id = {}", id);
-        return UserMapper.toDto(userService.getUserById(id));
+        return UserMapper.toDto(userService.findUserById(id));
     }
 
     @GetMapping
     public List<UserDto> getAllUsers() {
         log.info("Получен запрос на получение всех пользователей");
-        return UserMapper.toDtoList(userService.getAllUsers());
+        return UserMapper.toDtoList(userService.findAllUsers());
     }
 
     @PostMapping
@@ -44,6 +44,6 @@ public class UserController {
     @DeleteMapping({"/{userId}"})
     public void deleteUser(@PathVariable Long userId) {
         log.info("Получен запрос на удаление пользователя с id = {}", userId);
-        userService.deleteUser(userId);
+        userService.deleteUserById(userId);
     }
 }

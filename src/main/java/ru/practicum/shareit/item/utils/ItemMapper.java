@@ -1,7 +1,11 @@
 package ru.practicum.shareit.item.utils;
 
+import ru.practicum.shareit.booking.dto.BookingInItemDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.CommentMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +17,54 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .owner(item.getOwner())
+                .ownerId(item.getOwnerId())
                 .build();
+    }
+
+    public static ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments) {
+        BookingInItemDto last;
+        BookingInItemDto next;
+
+        if (lastBooking == null) {
+            last = null;
+        } else {
+            last = BookingInItemDto.builder()
+                    .id(lastBooking.getId())
+                    .start(lastBooking.getStart())
+                    .end(lastBooking.getEnd())
+                    .bookerId(lastBooking.getBooker().getId())
+                    .status(lastBooking.getStatus())
+                    .build();
+        }
+        if (nextBooking == null) {
+            next = null;
+        } else {
+            next = BookingInItemDto.builder()
+                    .id(nextBooking.getId())
+                    .start(nextBooking.getStart())
+                    .end(nextBooking.getEnd())
+                    .bookerId(nextBooking.getBooker().getId())
+                    .status(nextBooking.getStatus())
+                    .build();
+        }
+
+        ItemDto itemDto = ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .ownerId(item.getOwnerId())
+                .nextBooking(next)
+                .lastBooking(last)
+                .build();
+
+        if (comments != null) {
+            itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+        } else {
+            itemDto.setComments(new ArrayList<>());
+        }
+
+        return itemDto;
     }
 
     public static Item toItem(ItemDto itemDto) {
@@ -23,7 +73,7 @@ public class ItemMapper {
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .owner(itemDto.getOwner())
+                .ownerId(itemDto.getOwnerId())
                 .build();
     }
 

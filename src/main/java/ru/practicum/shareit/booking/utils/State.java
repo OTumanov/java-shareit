@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.utils;
 
-public enum Status {
+public enum State {
     WAITING,
     APPROVED,
     REJECTED,

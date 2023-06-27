@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.model.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storge.UserRepository;
 
@@ -15,27 +16,42 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.getUserById(id);
+    public User findUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого пользователя"));
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.getAllUsers();
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 
     @Override
     public User createUser(User user) {
-        return userRepository.createUser(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User updateUser(Long userId, User user) {
-        return userRepository.updateUser(userId, user);
+        User updateUser = patchUser(userId, user);
+        return userRepository.save(updateUser);
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+    public void deleteUserById(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    private User patchUser(Long userId, User user) {
+        User patchedUser = userRepository.getById(userId);
+        String name = user.getName();
+        String newEmail = user.getEmail();
+        String oldEmail = patchedUser.getEmail();
+        if (name != null && !name.isBlank()) {
+            patchedUser.setName(name);
+        }
+        if (!oldEmail.equals(newEmail) && newEmail != null && !newEmail.isBlank()) {
+            patchedUser.setEmail(newEmail);
+        }
+        return patchedUser;
     }
 }
