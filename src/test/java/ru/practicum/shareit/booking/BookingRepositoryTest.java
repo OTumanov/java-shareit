@@ -79,10 +79,7 @@ public class BookingRepositoryTest {
 
     @Test
     public void findByBookerIdAndStatusTest() {
-        Page<Booking> result = bookingRepository.findByBookerIdAndStatus
-                (
-                        booker.getId(), bookingStatus, Pageable.unpaged()
-                );
+        Page<Booking> result = bookingRepository.findByBookerIdAndStatus(booker.getId(), bookingStatus, Pageable.unpaged());
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
