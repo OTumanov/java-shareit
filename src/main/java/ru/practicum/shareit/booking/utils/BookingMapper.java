@@ -81,4 +81,16 @@ public class BookingMapper {
         dto.setEnd(booking.getEnd());
         return dto;
     }
+
+    public static Booking toModel(BookingDetailedDto responseDto) {
+
+        return Booking.builder()
+                .id(responseDto.getId())
+                .start(responseDto.getStart())
+                .end(responseDto.getEnd())
+                .status(responseDto.getStatus())
+                .booker(responseDto.getBooker())
+                .item(responseDto.getItem())
+                .build();
+    }
 }

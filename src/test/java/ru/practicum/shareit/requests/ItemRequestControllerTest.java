@@ -8,11 +8,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.dto.PostRequestDto;
 import ru.practicum.shareit.request.dto.PostResponseRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.request.utils.RequestMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -101,6 +103,22 @@ public class ItemRequestControllerTest {
                 .andExpect(content().json("[]"));
 
         verify(itemRequestService, times(1)).findAllByUserId(any(Long.class));
+    }
+
+    @Test
+    void createInvalidRequestWithEmptyDescription_shouldReturnStatus400() throws Exception {
+       ItemRequestDto itemRequestToBack = ItemRequestDto.builder().id(1L).description("testDescription").build();
+       ItemRequestDto badItemRequestToCreate = ItemRequestDto.builder().description("").build();
+
+        when(itemRequestService.addRequest(anyLong(), any()))
+                .thenReturn(RequestMapper.mapToPostResponseDto(itemRequestToBack));
+        mvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(mapper.writeValueAsString(badItemRequestToCreate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     private PostResponseRequestDto createPostResponseDto(Long id, PostRequestDto dto, LocalDateTime date) {

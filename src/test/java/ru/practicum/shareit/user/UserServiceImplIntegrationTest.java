@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -80,16 +82,16 @@ public class UserServiceImplIntegrationTest {
 
         userService.createUser(user1);
 
-        User updatedUser = userService.updateUser(1L, userUpdate1);
+        UserDto updatedUser = userService.updateUser(1L, UserMapper.toDto(userUpdate1));
 
         assertThat(updatedUser.getName(), equalTo(userUpdate1.getName()));
         assertThat(updatedUser.getEmail(), equalTo(userUpdate1.getEmail()));
 
-        updatedUser = userService.updateUser(1L, userUpdate2);
+        updatedUser = userService.updateUser(1L, UserMapper.toDto(userUpdate2));
 
         assertThat(updatedUser.getEmail(), equalTo(userUpdate2.getEmail()));
 
-        updatedUser = userService.updateUser(1L, userUpdate3);
+        updatedUser = userService.updateUser(1L, UserMapper.toDto(userUpdate3));
 
         assertThat(updatedUser.getName(), equalTo(userUpdate3.getName()));
     }

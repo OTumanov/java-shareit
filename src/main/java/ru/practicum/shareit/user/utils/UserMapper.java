@@ -38,17 +38,12 @@ public class UserMapper {
         return result;
     }
 
-    public static List<User> toUserList(List<UserDto> allUsers) {
-        List<User> result = new ArrayList<>();
-        for (UserDto u : allUsers) {
-            result.add(toUser(u));
-        }
-
-        return result;
-    }
-
     public static User toModel(UserDto userDto, Long userId) {
         return new User(userId, userDto.getName(), userDto.getEmail());
+    }
+
+    public static User toModel(User user, Long userId) {
+        return new User(userId, user.getName(), user.getEmail());
     }
 
     public static List<UserDto> mapUserListToUserDtoList(List<User> users) {

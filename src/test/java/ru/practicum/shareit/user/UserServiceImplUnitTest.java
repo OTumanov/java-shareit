@@ -7,9 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exceptions.model.NotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 import ru.practicum.shareit.user.storge.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -72,6 +76,25 @@ class UserServiceImplUnitTest {
         assertThat(userService.findAllUsers(), equalTo(new ArrayList<>()));
     }
 
+    @Test
+    void updateUserTest() {
+        User user = new User(1L, "user1", "user1@email.com");
+        user.setName("updated name");
+
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        System.out.println(user);
+
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
+        System.out.println(user);
+
+        UserDto userDto = userService.updateUser(1L, UserMapper.toDto(user));
+
+        assertNotNull(userDto);
+        assertEquals(userDto.getId(), 1);
+        assertEquals(userDto.getName(), user.getName());
+
+        verify(userRepository, times(1)).save(any(User.class));
+    }
 
     @Test
     public void editUserThrowNotFoundExceptionWhenUserNotExists() {

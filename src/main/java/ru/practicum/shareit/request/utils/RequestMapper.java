@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.utils;
 
 import org.springframework.data.domain.Page;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
@@ -62,6 +63,15 @@ public class RequestMapper {
         dto.setId(itemRequest.getId());
         dto.setDescription(itemRequest.getDescription());
         dto.setCreated(itemRequest.getCreated());
+        return dto;
+    }
+
+    public static PostResponseRequestDto mapToPostResponseDto(ItemRequestDto itemRequestToBack) {
+
+        PostResponseRequestDto dto = new PostResponseRequestDto();
+        dto.setDescription(itemRequestToBack.getDescription());
+        dto.setId(itemRequestToBack.getId());
+        dto.setCreated(itemRequestToBack.getCreated());
         return dto;
     }
 }

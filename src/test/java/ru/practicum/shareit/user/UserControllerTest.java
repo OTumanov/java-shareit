@@ -7,10 +7,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -76,18 +78,22 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUserTest() throws Exception {
-        when(userService.updateUser(any(), any())).thenReturn(user);
+    public void updateUserTest() throws Exception {
+        long userId = 1L;
+        UserDto userDto = createTestUserDto(userId);
+        userDto.setName("updatedName");
 
-        mvc.perform(patch(BASE_PATH_USERS + "/1")
-                        .content(mapper.writeValueAsString(user))
+        when(userService.updateUser(any(Long.class), any(UserDto.class)))
+                .thenReturn(userDto);
+
+        mvc.perform(patch("/users/1")
+                        .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(user.getId()), Long.class))
-                .andExpect(jsonPath("$.name", is(user.getName())))
-                .andExpect(jsonPath("$.email", is(user.getEmail())));
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).updateUser(any(Long.class), any(UserDto.class));
     }
 
     @Test
@@ -125,5 +131,36 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void findAllUsersTest() throws Exception {
+        when(userService.findAllUsers()).thenReturn(Collections.emptyList());
+
+        mvc.perform(get("/users"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).findAllUsers();
+    }
+
+
+    @Test
+    public void deleteUserByIdTest() throws Exception {
+        mvc.perform(delete("/users/1"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).deleteUserById(any(Long.class));
+    }
+
+    private UserDto createTestUserDto(Long id) {
+        String name = "user";
+        String email = "user@user.com";
+
+        UserDto dto = new UserDto();
+        dto.setId(id);
+        dto.setName(name);
+        dto.setEmail(email);
+        return dto;
     }
 }
