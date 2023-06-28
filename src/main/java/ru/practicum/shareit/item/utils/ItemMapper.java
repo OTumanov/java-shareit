@@ -129,4 +129,15 @@ public class ItemMapper {
 
         return item;
     }
+
+    public static ItemInRequestDto toRequestItemDto(Item item) {
+        ItemInRequestDto dto = new ItemInRequestDto();
+        dto.setId(item.getOwnerId());
+        dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
+        dto.setAvailable(item.getAvailable());
+        dto.setRequestId(item.getItemRequestId());
+        dto.setOwner(item.getOwnerId());
+        return dto;
+    }
 }

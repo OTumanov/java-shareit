@@ -46,4 +46,16 @@ public class UserMapper {
 
         return result;
     }
+
+    public static User toModel(UserDto userDto, Long userId) {
+        return new User(userId, userDto.getName(), userDto.getEmail());
+    }
+
+    public static List<UserDto> mapUserListToUserDtoList(List<User> users) {
+        List<UserDto> result = new ArrayList<>();
+        for (User user : users) {
+            result.add(toDto(user));
+        }
+        return result;
+    }
 }
