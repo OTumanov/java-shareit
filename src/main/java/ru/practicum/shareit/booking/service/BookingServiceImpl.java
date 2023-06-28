@@ -5,8 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDetailedDto;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
+import ru.practicum.shareit.booking.dto.BookingPostResponseDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingMapper;
@@ -17,6 +20,7 @@ import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
 import ru.practicum.shareit.exceptions.model.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storge.UserRepository;
 
 import javax.validation.ValidationException;
@@ -135,46 +139,41 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking createBooking(BookingPostDto bookingPostDto, Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        itemRepository.findById(bookingPostDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+    @Transactional
+    public BookingPostResponseDto createBooking(BookingPostDto dto, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
-        if (bookingPostDto.getStart() == null || bookingPostDto.getEnd() == null) {
+        if (dto.getStart() == null || dto.getEnd() == null) {
             throw new ValidationException("Не указано время начала или время завершения бронирования");
         }
 
-        if (bookingPostDto.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Время начала -- " + bookingPostDto.getStart() + " не может быть меньше текущего времени");
+        if (dto.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время начала -- " + dto.getStart() + " не может быть меньше текущего времени");
         }
 
-        if (!bookingPostDto.getStart().isBefore(bookingPostDto.getEnd())) {
-            throw new ValidationException("Время начала -- " + bookingPostDto.getStart() + " не может быть после времени завершения -- " + bookingPostDto.getEnd());
+        if (!dto.getStart().isBefore(dto.getEnd())) {
+            throw new ValidationException("Время начала -- " + dto.getStart() + " не может быть после времени завершения -- " + dto.getEnd());
         }
 
-        if (userId.equals(itemRepository.findById(bookingPostDto.getItemId()).get().getOwnerId())) {
+        if (userId.equals(itemRepository.findById(dto.getItemId()).get().getOwnerId())) {
             throw new NotFoundException("Нельзя забронировать свою же вещь");
         }
 
-        if (!itemRepository.findById(bookingPostDto.getItemId()).get().getAvailable()) {
+        if (!itemRepository.findById(dto.getItemId()).get().getAvailable()) {
             throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
         }
 
-        Booking booking = Booking.builder()
-                .start(bookingPostDto.getStart())
-                .end(bookingPostDto.getEnd())
-                .booker(userRepository.findById(userId).get())
-                .item(itemRepository.findById(bookingPostDto.getItemId()).get())
-                .status(WAITING)
-                .build();
-        bookingRepository.save(booking);
-
-        return booking;
+        Booking booking = BookingMapper.toModel(dto, item, user);
+        booking = bookingRepository.save(booking);
+        return BookingMapper.toPostResponseDto(booking, item);
     }
 
     @Override
-    public Booking patchBooking(Long bookingId, Boolean approved, Long userId) {
+    @Transactional
+    public BookingResponseDto patchBooking(Long bookingId, Boolean approved, Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        Booking patchedBooking = bookingRepository.findById(bookingId).get();
+        Booking patchedBooking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Заявка не найдена"));
         Item item = itemRepository.findById(patchedBooking.getItem().getId()).get();
 
         if (!item.getAvailable()) {
@@ -191,9 +190,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         patchedBooking.setStatus(status);
-        bookingRepository.save(patchedBooking);
-
-        return patchedBooking;
+        patchedBooking = bookingRepository.save(patchedBooking);
+        return BookingMapper.toResponseDto(patchedBooking, patchedBooking.getBooker(), item);
     }
 
     private BookingStatus parseState(String state) {

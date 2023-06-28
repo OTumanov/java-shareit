@@ -47,7 +47,7 @@ public class ItemServiceImplUnitTest {
     private final ItemRequest itemRequest = ItemRequest.builder()
             .id(1L)
             .description("testDescription")
-            .requester(user)
+            .requester(user.getId())
             .items(new ArrayList<>())
             .build();
     private final Item item = Item.builder()

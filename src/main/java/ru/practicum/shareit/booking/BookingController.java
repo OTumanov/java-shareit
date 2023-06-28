@@ -38,7 +38,6 @@ public class BookingController {
         return bookingService.findAllByBooker(state, userId, from, size);
     }
 
-
     @GetMapping("/owner")
     public List<BookingDetailedDto> findAllByItemOwner(@RequestParam(defaultValue = "ALL") String state,
                                                        @RequestHeader(USER_ID_HEADER) Long userId,
@@ -48,12 +47,11 @@ public class BookingController {
         return BookingMapper.toListDetailedDto(bookingService.findAllByItemOwner(state, userId, from, size));
     }
 
-
     @PostMapping
     public BookingPostResponseDto createBooking(@RequestBody BookingPostDto bookingPostDto,
                                                 @RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание бронирования");
-        return BookingMapper.toBookingPostResponseDto(bookingService.createBooking(bookingPostDto, userId));
+        return bookingService.createBooking(bookingPostDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
@@ -61,6 +59,6 @@ public class BookingController {
                                            @RequestParam Boolean approved,
                                            @RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Запрос на обновление бронирования с id = {}", bookingId);
-        return BookingMapper.toBookingResponseDto(bookingService.patchBooking(bookingId, approved, userId));
+        return bookingService.patchBooking(bookingId, approved, userId);
     }
 }

@@ -2,38 +2,20 @@ package ru.practicum.shareit.request.utils;
 
 import org.springframework.data.domain.Page;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
+import ru.practicum.shareit.request.dto.PostRequestDto;
+import ru.practicum.shareit.request.dto.PostResponseRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.utils.UserMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestMapper {
-    public static ItemRequestDto toDto(ItemRequest itemRequest) {
-
-        ItemRequestDto dto = ItemRequestDto.builder()
-                .id(itemRequest.getId())
-                .description(itemRequest.getDescription())
-                .created(itemRequest.getCreated())
-                .requester(UserMapper.toDto(itemRequest.getRequester()))
-                .items(itemRequest.getItems() != null ? itemRequest.getItems()
-                        .stream()
-                        .map(ItemMapper::toItemDto)
-                        .collect(Collectors.toList())
-                        : new ArrayList<>())
-                .build();
-
-        System.out.println(dto);
-
-        return dto;
-    }
-
     public static RequestWithItemsDto toRequestWithItemsDto(ItemRequest request, List<Item> items) {
         List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
         RequestWithItemsDto dto = new RequestWithItemsDto();
@@ -65,5 +47,21 @@ public class RequestMapper {
         }
 
         return result;
+    }
+
+    public static ItemRequest toModel(PostRequestDto dto, Long requestor) {
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription(dto.getDescription());
+        itemRequest.setRequester(requestor);
+        itemRequest.setCreated(LocalDateTime.now());
+        return itemRequest;
+    }
+
+    public static PostResponseRequestDto toPostResponseDto(ItemRequest itemRequest) {
+        PostResponseRequestDto dto = new PostResponseRequestDto();
+        dto.setId(itemRequest.getId());
+        dto.setDescription(itemRequest.getDescription());
+        dto.setCreated(itemRequest.getCreated());
+        return dto;
     }
 }
