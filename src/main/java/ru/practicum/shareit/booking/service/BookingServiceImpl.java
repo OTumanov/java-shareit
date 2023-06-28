@@ -149,7 +149,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (dto.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Время начала -- " + dto.getStart() + " не может быть меньше текущего времени");
+            throw new ValidationException("Время начала -- " + dto.getStart() + " не может быть меньше текущего времени " + LocalDateTime.now());
         }
 
         if (!dto.getStart().isBefore(dto.getEnd())) {
@@ -165,33 +165,28 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = BookingMapper.toModel(dto, item, user);
-        booking = bookingRepository.save(booking);
+        bookingRepository.save(booking);
         return BookingMapper.toPostResponseDto(booking, item);
     }
 
     @Override
     @Transactional
     public BookingResponseDto patchBooking(Long bookingId, Boolean approved, Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        Booking patchedBooking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Заявка не найдена"));
-        Item item = itemRepository.findById(patchedBooking.getItem().getId()).get();
-
-        if (!item.getAvailable()) {
-            throw new UnavailableBookingException("Вещь уже забронирована и недоступна для бронирования");
-        }
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+        Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow();
 
         if (!item.getOwnerId().equals(userId)) {
-            throw new NotFoundException("Пользователь " + userId + " не является владельцем цещи: " + item.getId());
+            throw new NotFoundException("пользователь не является владельцем вещи userId: " + userId + " itemId: " + item.getId());
         }
         BookingStatus status = convertToStatus(approved);
 
-        if (patchedBooking.getStatus().equals(status)) {
-            throw new UnsupportedStatusException("Статус уже и так " + status);
+        if (booking.getStatus().equals(status)) {
+            throw new IllegalArgumentException("статус уже выставлен state: " + status);
         }
 
-        patchedBooking.setStatus(status);
-        patchedBooking = bookingRepository.save(patchedBooking);
-        return BookingMapper.toResponseDto(patchedBooking, patchedBooking.getBooker(), item);
+        booking.setStatus(status);
+        booking = bookingRepository.save(booking);
+        return BookingMapper.toResponseDto(booking, booking.getBooker(), item);
     }
 
     private BookingStatus parseState(String state) {
