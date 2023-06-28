@@ -116,7 +116,6 @@ public class BookingControllerTest {
         verify(bookingService, times(1)).findById(any(Long.class), any(Long.class));
     }
 
-
     private BookingPostDto generateInputDto() {
         BookingPostDto dto = new BookingPostDto();
         dto.setId(1L);
