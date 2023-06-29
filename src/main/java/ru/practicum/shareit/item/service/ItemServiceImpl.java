@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingStatus;
@@ -15,6 +18,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.item.utils.CommentMapper;
 import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storge.UserRepository;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,13 +52,12 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item, null, null, comments);
     }
 
-    private Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-    }
 
+    @Transactional
     @Override
-    public List<ItemDto> findAllItemsByUserId(Long userId) {
-        List<Item> userItems = itemRepository.findAllByOwnerId(userId);
+    public List<ItemDto> findAllItemsByUserId(Long userId, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
+        List<Item> userItems = itemRepository.findAllByOwnerId(userId, page);
         List<ItemDto> result = new ArrayList<>();
         fillItemAdvancedList(result, userItems, userId);
         result.sort((o1, o2) -> {
@@ -79,14 +83,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item createItem(Item item, Long userId) {
-        if (checkItem(item, userId)) {
-            item.setOwnerId(userId);
+    public ItemDto createItem(ItemDto itemDto, Long userId) {
+        checkItem(itemDto, userId);
+        itemDto.setOwnerId(userId);
+        Item item = ItemMapper.toModel(itemDto, userId);
+        item = itemRepository.save(item);
 
-            return itemRepository.save(item);
-        } else {
-            throw new ValidationException("Не все поля заполнены!");
-        }
+        return ItemMapper.toDto(item, null);
     }
 
     @Override
@@ -106,6 +109,7 @@ public class ItemServiceImpl implements ItemService {
                     .available(available)
                     .ownerId(userId)
                     .build();
+
             return itemRepository.save(updatedItem);
         } else {
             throw new AccessException("Доступ запрещен");
@@ -117,13 +121,15 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(itemId);
     }
 
+    @Transactional
     @Override
-    public List<Item> search(String text, Long userId) {
+    public List<Item> search(String text, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text);
+        return new ArrayList<>(itemRepository.search(text, page));
     }
 
     @Override
@@ -144,18 +150,36 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentDetailedDto(comment);
     }
 
-    private boolean checkItem(Item item, Long userId) {
-        if (item.getAvailable() == null) {
+    @Override
+    public void checkItem(ItemDto itemDto, Long userId) {
+        if (itemDto.getAvailable() == null) {
             throw new ValidationException("Не указана доступность вещи");
-        } else if (item.getName() == null || item.getName().isBlank() || item.getName().isEmpty()) {
+        } else if (itemDto.getName() == null || itemDto.getName().isBlank() || itemDto.getName().isEmpty()) {
             throw new ValidationException("У вещи должно быть указано имя");
-        } else if (item.getDescription() == null || item.getDescription().isBlank() || item.getDescription().isEmpty()) {
+        } else if (itemDto.getDescription() == null || itemDto.getDescription().isBlank() || itemDto.getDescription().isEmpty()) {
             throw new ValidationException("У вещи должно быть указано описание");
         } else if (userService.findUserById(userId) == null) {
             throw new NotFoundException("Нет такого пользователя");
         }
+    }
 
-        return true;
+    @Transactional
+    @Override
+    public List<ItemDto> searchAvailableItems(String text, int from, int size) {
+        Pageable page = PageRequest.of(from / size, size);
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
+        }
+        return itemRepository.searchAvailableItems(text, page).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    @Override
+    public Long getOwnerId(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена")).getOwnerId();
     }
 
     private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {
@@ -184,5 +208,9 @@ public class ItemServiceImpl implements ItemService {
                 .min(Comparator.comparing(Booking::getStart)).orElse(null);
 
         return ItemMapper.toItemDto(item, lastBooking, nextBooking, comments);
+    }
+
+    private Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 }

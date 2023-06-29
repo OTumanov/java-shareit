@@ -9,6 +9,9 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.utils.ItemMapper;
 
+import javax.validation.ValidationException;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -22,27 +25,32 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId,
                                @RequestHeader(name = USER_ID_HEADER) Long userId) {
-        log.info("Запрос вещи с id = {}", itemId);
+        log.info("Запрос на получение вещи с id = {}", itemId);
         return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(name = USER_ID_HEADER) Long userId) {
-        log.info("Запрос всех вещей пользователя с id = {}", userId);
-        return itemService.findAllItemsByUserId(userId);
+    public List<ItemDto> getAllItems(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Запрос на получение всех вещей");
+        return itemService.findAllItemsByUserId(userId, from, size);
     }
 
     @PostMapping
-    public ItemDto createItem(@RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto,
+    public ItemDto createItem(@RequestBody ItemDto itemDto,
                               @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Запрос на создание вещи");
-        return ItemMapper.toItemDto(itemService.createItem(ItemMapper.toItem(itemDto), userId));
+        if (itemDto.getName().isEmpty() || itemDto.getDescription() == null || itemDto.getDescription().isEmpty() || itemDto.getAvailable() == null) {
+            throw new ValidationException("Имя и описание должны быть заполнены!");
+        }
+        return itemService.createItem(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
                               @RequestHeader(name = USER_ID_HEADER) Long userId,
-                              @RequestBody ru.practicum.shareit.item.dto.ItemDto itemDto) {
+                              @RequestBody ItemDto itemDto) {
         log.info("Запрос на обновление вещи с id = {}", itemId);
         return ItemMapper.toItemDto(itemService.updateItem(itemId, userId, ItemMapper.toItem(itemDto)));
     }
@@ -54,16 +62,22 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ru.practicum.shareit.item.dto.ItemDto> searchItems(@RequestParam String text,
-                                                                   @RequestHeader(name = USER_ID_HEADER) Long userId) {
-        log.info("Запрос на поиск вещей с текстом = {} и пользователем с id = {}", text, userId);
-        return ItemMapper.toItemDtoList(itemService.search(text, userId));
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @PositiveOrZero @RequestHeader(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Запрос на поиск вещей");
+        return ItemMapper.toItemDtoList(itemService.search(text, from, size));
     }
+
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestBody CreateCommentFromDto commentDto,
                                     @PathVariable Long itemId,
                                     @RequestHeader(USER_ID_HEADER) Long userId) {
+        log.info("Запрос на создание комментария");
+        if (commentDto.getText().isEmpty()) {
+            throw new ValidationException("Текст комментария не может быть пустым!");
+        }
         return itemService.createComment(commentDto, itemId, userId);
     }
 

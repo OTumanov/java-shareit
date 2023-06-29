@@ -3,9 +3,9 @@ package ru.practicum.shareit.item.utils;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.CommentMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,22 +67,77 @@ public class ItemMapper {
         return itemDto;
     }
 
-    public static Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .ownerId(itemDto.getOwnerId())
-                .build();
+    public static ItemDto toDto(Item item, List<Comment> comments) {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        if (comments != null) {
+            itemDto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
+        }
+        itemDto.setRequestId(item.getItemRequestId());
+
+        return itemDto;
     }
 
     public static List<ItemDto> toItemDtoList(List<Item> items) {
-
         List<ItemDto> result = new ArrayList<>();
         for (Item item : items) {
             result.add(toItemDto(item));
         }
+
         return result;
+    }
+
+    public static List<ItemInRequestDto> toRequestItemDtoList(List<Item> items) {
+        List<ItemInRequestDto> result = new ArrayList<>();
+
+        for (Item item : items) {
+            ItemInRequestDto dto = ItemInRequestDto.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .available(item.getAvailable())
+                    .requestId(item.getItemRequestId())
+                    .owner(item.getOwnerId())
+                    .build();
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    public static Item toModel(ItemDto itemDto, Long ownerId) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwnerId(ownerId);
+        item.setItemRequestId(itemDto.getRequestId());
+
+        return item;
+    }
+
+    public static Item toItem(ItemDto itemDto) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwnerId(itemDto.getId());
+        item.setItemRequestId(itemDto.getRequestId());
+
+        return item;
+    }
+
+    public static ItemInRequestDto toRequestItemDto(Item item) {
+        ItemInRequestDto dto = new ItemInRequestDto();
+        dto.setId(item.getOwnerId());
+        dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
+        dto.setAvailable(item.getAvailable());
+        dto.setRequestId(item.getItemRequestId());
+        dto.setOwner(item.getOwnerId());
+        return dto;
     }
 }

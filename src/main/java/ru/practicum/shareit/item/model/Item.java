@@ -31,6 +31,9 @@ public class Item {
     @JoinColumn(name = "owner_id", nullable = false)
     private Long ownerId;
 
+    @JoinColumn(name = "request_id")
+    private Long itemRequestId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

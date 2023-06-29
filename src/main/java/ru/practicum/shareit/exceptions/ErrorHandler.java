@@ -23,6 +23,21 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(IllegalArgumentException exception) {
+        log.warn("400 {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
+    }
+
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ConflictException exception) {
+        log.warn("400 {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(UnsupportedStatusException exception) {
         log.warn("400 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
@@ -59,6 +74,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handlerAccessException(final AccessException exception) {
+        log.warn("403 {}", exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handlerAccessException(final ErrorResponse exception) {
         log.warn("403 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }

@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class UserMapper {
     public static UserDto toDto(User user) {
+
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -20,6 +21,7 @@ public class UserMapper {
     }
 
     public static User toUser(UserDto userDto) {
+
         return User.builder()
                 .id(userDto.getId())
                 .name(userDto.getName())
@@ -31,6 +33,23 @@ public class UserMapper {
         List<UserDto> result = new ArrayList<>();
         for (User u : allUsers) {
             result.add(toDto(u));
+        }
+
+        return result;
+    }
+
+    public static User toModel(UserDto userDto, Long userId) {
+        return new User(userId, userDto.getName(), userDto.getEmail());
+    }
+
+    public static User toModel(User user, Long userId) {
+        return new User(userId, user.getName(), user.getEmail());
+    }
+
+    public static List<UserDto> mapUserListToUserDtoList(List<User> users) {
+        List<UserDto> result = new ArrayList<>();
+        for (User user : users) {
+            result.add(toDto(user));
         }
         return result;
     }

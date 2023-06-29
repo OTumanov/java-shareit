@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package ru.practicum.shareit.item.utils;
 
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentFromDto;
@@ -17,8 +17,8 @@ public class CommentMapper {
         comment.setCreated(LocalDateTime.now());
         comment.setAuthor(user);
         comment.setItem(item);
-        return comment;
 
+        return comment;
     }
 
     public static CommentDto toCommentDetailedDto(Comment comment) {
@@ -27,10 +27,18 @@ public class CommentMapper {
         commentDto.setText(comment.getText());
         commentDto.setAuthorName(comment.getAuthor().getName());
         commentDto.setCreated(comment.getCreated());
+
         return commentDto;
     }
 
     public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
+        return comments.stream()
+                .map(CommentMapper::toCommentDetailedDto)
+                .collect(Collectors.toList());
+    }
+
+
+    public static List<CommentDto> toCommentDetailedDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(CommentMapper::toCommentDetailedDto)
                 .collect(Collectors.toList());
