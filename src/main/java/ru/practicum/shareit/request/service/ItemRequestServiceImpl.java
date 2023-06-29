@@ -51,7 +51,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkPageAndSize(from, size);
         userRepository.findById(userId);
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("created"));
-        Page<ItemRequest> requests = requestsRepository.findAll(userId, pageable);
+        Page<ItemRequest> requests = requestsRepository.findAllByRequesterIsNot(userId, pageable);
 
         return RequestMapper.toRequestWithItemsDtoList(requests, itemRepository);
     }
@@ -69,7 +69,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<RequestWithItemsDto> findAll(int from, int size, Long userId) {
         userService.findUserById(userId);
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
-        Page<ItemRequest> requests = requestsRepository.findAll(userId, pageable);
+        Page<ItemRequest> requests = requestsRepository.findAllByRequesterIsNot(userId, pageable);
         return RequestMapper.toRequestWithItemsDtoList(requests, itemRepository);
     }
 

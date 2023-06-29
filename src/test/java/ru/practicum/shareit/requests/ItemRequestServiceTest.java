@@ -81,7 +81,7 @@ public class ItemRequestServiceTest {
     @Test
     void findAllTest() {
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.ofNullable(user));
-        when(requestRepository.findAll(any(Long.class), any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<>()));
+        when(requestRepository.findAllByRequesterIsNot(any(Long.class), any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<>()));
         when(itemRepository.findAllByItemRequestId(any(Long.class))).thenReturn(new ArrayList<>());
 
         List<RequestWithItemsDto> result = requestService.findAll(0, 20, 1L);

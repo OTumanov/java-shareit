@@ -19,11 +19,12 @@ import java.util.stream.Collectors;
 public class RequestMapper {
     public static RequestWithItemsDto toRequestWithItemsDto(ItemRequest request, List<Item> items) {
         List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
-        RequestWithItemsDto dto = new RequestWithItemsDto();
-        dto.setId(request.getId());
-        dto.setDescription(request.getDescription());
-        dto.setCreated(request.getCreated());
-        dto.setItems(itemDtos);
+        RequestWithItemsDto dto = RequestWithItemsDto.builder()
+                .id(request.getId())
+                .description(request.getDescription())
+                .created(request.getCreated())
+                .items(itemDtos)
+                .build();
 
         return dto;
     }

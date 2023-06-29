@@ -52,7 +52,7 @@ public class ItemRequestRepositoryTest {
 
     @Test
     public void findAllTest() {
-        Page<ItemRequest> result = requestsRepository.findAll(user.getId(), Pageable.unpaged());
+        Page<ItemRequest> result = requestsRepository.findAllByRequesterIsNot(user.getId(), Pageable.unpaged());
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
