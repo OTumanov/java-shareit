@@ -7,8 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.client.BaseClient;
 
 import java.util.Map;
@@ -16,6 +15,7 @@ import java.util.Map;
 @Service
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
+    public static final String BOOKING_INVALID_MESSAGE = "недопустимые значения времени бронирования: ";
 
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -27,21 +27,44 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {
+    public ResponseEntity<Object> createBooking(BookingPostDto dto, Long userId) {
+        if (!isStartBeforeEnd(dto)) {
+            throw new IllegalArgumentException(BOOKING_INVALID_MESSAGE +
+                    "start: " + dto.getStart() + " end: " + dto.getEnd() + " now: ");
+        }
+        return post("", userId, dto);
+    }
+
+    public ResponseEntity<Object> patchBooking(Long bookingId, Boolean approved, Long userId) {
         Map<String, Object> parameters = Map.of(
-                "state", state.name(),
+                "approved", approved
+        );
+        return patch("/" + bookingId + "?approved={approved}", userId, parameters);
+    }
+
+    public ResponseEntity<Object> findById(Long bookingId, Long userId) {
+        return get("/" + bookingId, userId);
+    }
+
+    public ResponseEntity<Object> findAllByBooker(String state, Long userId, int from, int size) {
+        Map<String, Object> parameters = Map.of(
+                "state", state,
                 "from", from,
                 "size", size
         );
         return get("?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-
-    public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> findAllByItemOwner(String state, Long userId, int from, int size) {
+        Map<String, Object> parameters = Map.of(
+                "state", state,
+                "from", from,
+                "size", size
+        );
+        return get("/owner?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
-        return get("/" + bookingId, userId);
+    private boolean isStartBeforeEnd(BookingPostDto dto) {
+        return dto.getStart().isBefore(dto.getEnd());
     }
 }
