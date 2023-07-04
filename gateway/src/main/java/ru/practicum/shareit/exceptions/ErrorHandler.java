@@ -6,96 +6,30 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exceptions.model.*;
+import ru.practicum.shareit.exceptions.model.ErrorResponse;
 
-import javax.validation.ValidationException;
-
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(ValidationException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
+    public ErrorResponse handle(MethodArgumentNotValidException e) {
+        log.warn("Ошибка валидации", e);
+        return new ErrorResponse("Ошибка валидации 400: ", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(IllegalArgumentException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(ConflictException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(UnsupportedStatusException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(CommentException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(UnavailableBookingException exception) {
-        log.warn("400 {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUnknownDataException(NotFoundException exception) {
-        log.warn("404 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUnknownDataException(UserNotFoundException exception) {
-        log.warn("404 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handlerAccessException(final AccessException exception) {
-        log.warn("403 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handlerAccessException(final ErrorResponse exception) {
-        log.warn("403 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
+    public ErrorResponse handle(IllegalArgumentException e) {
+        log.warn("Недопустимое значение", e);
+        return new ErrorResponse("Передано недопустимое значение 400: ", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Exception exception) {
-        log.warn("500 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleUnknownDataException(MethodArgumentNotValidException exception) {
-        log.warn("400 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
+    public ErrorResponse handle(Throwable e) {
+        log.warn("Непредвиденная ошибка сервера", e);
+        return new ErrorResponse("непредвиденная ошибка сервера 500: ", e.getMessage());
     }
 }
