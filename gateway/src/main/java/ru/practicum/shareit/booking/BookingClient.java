@@ -10,6 +10,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.client.BaseClient;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -32,6 +33,19 @@ public class BookingClient extends BaseClient {
             throw new IllegalArgumentException(BOOKING_INVALID_MESSAGE +
                     "start: " + dto.getStart() + " end: " + dto.getEnd() + " now: ");
         }
+
+        if (dto.getStart() == null || dto.getEnd() == null) {
+            throw new IllegalArgumentException("Не указано время начала или время завершения бронирования");
+        }
+
+        if (dto.getStart().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Время начала -- " + dto.getStart() + " не может быть меньше текущего времени " + LocalDateTime.now());
+        }
+
+        if (!dto.getStart().isBefore(dto.getEnd())) {
+            throw new IllegalArgumentException("Время начала -- " + dto.getStart() + " не может быть после времени завершения -- " + dto.getEnd());
+        }
+
         return post("", userId, dto);
     }
 
