@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,7 +12,10 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.booking.utils.State;
-import ru.practicum.shareit.exceptions.model.*;
+import ru.practicum.shareit.exceptions.model.InvalidBookingException;
+import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
+import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
+import ru.practicum.shareit.exceptions.model.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -40,11 +42,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto createBooking(BookingDto dto, Long userId) {
 
-        System.out.println("запрос" + dto + " от " + userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
-        Item item = itemRepository.findById(dto.getItem()).orElseThrow(() -> new ItemNotFoundException("Нет такой вещи!"));
-        System.out.println(user);
-        System.out.println(item);
+
+        Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new UserNotFoundException("Нет такого вещи!"));
 
         if (userId.equals(item.getOwner())) {
             throw new InvalidBookingException("Нельзя забронировать свою же вещь");

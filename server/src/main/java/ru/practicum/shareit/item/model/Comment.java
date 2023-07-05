@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "comments")
+@Table(name = "comments")
 public class Comment {
     public static final int MAX_TEXT_LENGTH = 512;
     public static final String TEXT_COLUMN_NAME = "text";
@@ -26,7 +28,7 @@ public class Comment {
     @Column(name = TEXT_COLUMN_NAME, nullable = false, length = MAX_TEXT_LENGTH)
     private String text;
     @ManyToOne
-    @JoinColumn(name = Item.ID_COLUMN_NAME)
+    @JoinColumn(name = "item_id")
     private Item item;
     @ManyToOne
     @JoinColumn(name = "author_id")
