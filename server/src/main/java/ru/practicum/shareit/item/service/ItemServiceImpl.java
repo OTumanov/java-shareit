@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -98,21 +97,44 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findAllItems(Long userId, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-        Page<Item> itemPage = itemRepository.findAll(userId, pageable);
-        List<Item> userItems = itemPage.toList();
+//        Pageable pageable = PageRequest.of(from / size, size);
+//        Page<Item> itemPage = itemRepository.findAll(userId, pageable);
+//        List<Item> userItems = itemPage.toList();
+//
+//        List<ItemDto> result = new ArrayList<>();
+//        fillItemDtoList(result, userItems, userId);
+//
+//        result.sort((o1, o2) -> {
+//            if (o1.getNextBooking() == null && o2.getNextBooking() == null) {
+//                return 0;
+//            }
+//            if (o1.getNextBooking() != null && o2.getNextBooking() == null) {
+//                return -1;
+//            }
+//            if (o1.getNextBooking() == null && o2.getNextBooking() != null) {
+//                return 1;
+//            }
+//            if (o1.getNextBooking().getStart().isBefore(o2.getNextBooking().getStart())) {
+//                return -1;
+//            }
+//            if (o1.getNextBooking().getStart().isAfter(o2.getNextBooking().getStart())) {
+//                return 1;
+//            }
+//            return 0;
+//        });
 
+        Pageable page = PageRequest.of(from / size, size);
+        List<Item> userItems = itemRepository.findAllByOwner(userId, page);
         List<ItemDto> result = new ArrayList<>();
-        fillItemDtoList(result, userItems, userId);
-
+        fillItemAdvancedList(result, userItems, userId);
         result.sort((o1, o2) -> {
             if (o1.getNextBooking() == null && o2.getNextBooking() == null) {
                 return 0;
             }
-            if (o1.getNextBooking() != null && o2.getNextBooking() == null) {
+            if (o2.getNextBooking() == null) {
                 return -1;
             }
-            if (o1.getNextBooking() == null && o2.getNextBooking() != null) {
+            if (o1.getNextBooking() == null) {
                 return 1;
             }
             if (o1.getNextBooking().getStart().isBefore(o2.getNextBooking().getStart())) {
@@ -123,6 +145,7 @@ public class ItemServiceImpl implements ItemService {
             }
             return 0;
         });
+
         return result;
     }
 
@@ -211,6 +234,7 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
 
         List<Booking> bookings = bookingRepository.findAllBookingsByItemId(item.getId());
+        System.out.println(bookings);
         Booking lastBooking = bookings.stream()
                 .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
                 .filter(obj -> obj.getStart().isBefore(now))
@@ -220,13 +244,6 @@ public class ItemServiceImpl implements ItemService {
                 .filter(obj -> obj.getStart().isAfter(now))
                 .min(Comparator.comparing(Booking::getStart)).orElse(null);
 
-        System.out.println("last" + lastBooking);
-        System.out.println("next" + nextBooking);
-
         return ItemMapper.toDto(item, lastBooking, nextBooking, comments);
-    }
-
-    private Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь не найдена"));
     }
 }

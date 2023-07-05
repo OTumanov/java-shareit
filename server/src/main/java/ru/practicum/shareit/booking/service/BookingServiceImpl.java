@@ -97,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> findAllByBooker(String state, Long userId, int from, int size) {
         checkIfUserExists(userId);
-        List<Booking> bookings = null;
+        List<Booking> bookings = new ArrayList<>();
         State status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
         Sort sort = Sort.by("start").descending();
@@ -177,15 +177,5 @@ public class BookingServiceImpl implements BookingService {
 
     private BookingStatus convertToStatus(Boolean approved) {
         return approved ? BookingStatus.APPROVED : REJECTED;
-    }
-
-    private void checkPageAndSize(Integer page, Integer size) {
-        if (page < 0 || size < 0) {
-            throw new ValidationException("Параметры не могут быть меньше ноля");
-        }
-    }
-
-    private void checkUser(Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 }
