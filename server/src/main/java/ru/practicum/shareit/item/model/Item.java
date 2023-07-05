@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -12,44 +13,34 @@ import java.util.Objects;
 @AllArgsConstructor
 @Entity(name = "items")
 public class Item {
-    public static final int MAX_DESCRIPTION_LENGTH = 512;
-    public static final String NAME_COLUMN_NAME = "name";
-    public static final String ID_COLUMN_NAME = "item_id";
-    public static final String OWNER_COLUMN_NAME = "owner";
-    public static final String AVAILABLE_COLUMN_NAME = "available";
-    public static final String REQUEST_ID_COLUMN_NAME = "request_id";
-    public static final String DESCRIPTION_COLUMN_NAME = "description";
-
     @Id
-    @Column(name = ID_COLUMN_NAME)
+    @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = NAME_COLUMN_NAME, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = DESCRIPTION_COLUMN_NAME, nullable = false, length = MAX_DESCRIPTION_LENGTH)
+    @Column(name = "description", nullable = false, length = 512)
     private String description;
-    @Column(name = AVAILABLE_COLUMN_NAME, nullable = false)
+    @Column(name = "available", nullable = false)
     private Boolean available;
-    @Column(name = OWNER_COLUMN_NAME, nullable = false)
+    @Column(name = "owner", nullable = false)
     private Long owner;
-    @Column(name = REQUEST_ID_COLUMN_NAME)
+    @Column(name = "request_id")
     private Long requestId;
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         Item item = (Item) o;
-        return id != null
-                && Objects.equals(id, item.id)
-                && Objects.equals(name, item.name)
-                && Objects.equals(description, item.description)
-                && Objects.equals(available, item.available)
-                && Objects.equals(owner, item.owner);
+        return getId() != null && Objects.equals(getId(), item.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, available, owner);
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }

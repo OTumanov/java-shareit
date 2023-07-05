@@ -36,8 +36,8 @@ public class ItemMapper {
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
-        dto.setLastBooking(BookingMapper.bookingInItemDto(lastBooking));
-        dto.setNextBooking(BookingMapper.bookingInItemDto(nextBooking));
+        dto.setLastBooking(BookingMapper.toBookingDtoFromBooking(lastBooking));
+        dto.setNextBooking(BookingMapper.toBookingDtoFromBooking(nextBooking));
         if (comments != null) {
             dto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
         }

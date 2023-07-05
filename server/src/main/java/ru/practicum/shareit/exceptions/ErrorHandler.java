@@ -22,6 +22,20 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(UserNotFoundException e) {
+        log.warn("Не найден юзер ", e);
+        return new ErrorResponse("Нет такого пользователя! ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(ItemNotFoundException e) {
+        log.warn("Не найдена вещь ", e);
+        return new ErrorResponse("Не найдена вещь ", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handle(DeniedAccessException e) {
         log.warn("Отказ доступа", e);
