@@ -21,14 +21,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Page<Booking> findByBookerId(Long bookerId, Pageable pageable);
 
-//    Page<Booking> findBookingByItemOwnerAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
-//
-//    Page<Booking> findBookingByItemOwnerAndEndIsBefore(Long bookerId, LocalDateTime now, Pageable pageable);
-//
-//    Page<Booking> findBookingByItemOwnerAndStartIsAfter(Long bookerId, LocalDateTime now, Pageable pageable);
-//
-//    Page<Booking> findBookingByItemOwner(Long bookerId, Pageable pageable);
-
     List<Booking> findBookingByItemIdAndEndBefore(Long itemId, LocalDateTime now, Sort sort);
 
     List<Booking> findBookingByItemIdAndStartAfter(Long itemId, LocalDateTime now, Sort sort);
@@ -40,20 +32,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start asc ")
     Page<Booking> findByBookerIdCurrent(Long userId, LocalDateTime now, Pageable pageable);
 
-//    @Query("select b from bookings b " +
-//            "where b.item.owner = ?1 " +
-//            "and b.start < ?2 " +
-//            "and b.end > ?2 " +
-//            "order by b.start asc")
-//    Page<Booking> findBookingsByItemOwnerCurrent(Long userId, LocalDateTime now, Pageable pageable);
-
-//    @Query("select b from bookings b " +
-//            "where b.item.owner = ?1 " +
-//            "and b.start < ?2 " +
-//            "and b.end > ?2 " +
-//            "order by b.start asc")
-//    List<Booking> findBookingsByItemOwnerCurrent(Long userId, LocalDateTime now, Pageable pageable);
-
     @Query("select b from bookings b " +
             " where b.item.id = ?1 " +
             " and b.booker.id = ?2" +
@@ -62,18 +40,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllBookingsByItemId(Long id);
 
-//    Page<Booking> findBookingByItemOwnerAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
-
     @Query("select b from bookings b " +
             "where b.item.owner = ?1 " +
             "and b.start < ?2 " +
             "and b.end > ?2 " +
             "order by b.start asc")
     List<Booking> findBookingsByItemOwnerCurrent(Long userId, LocalDateTime now, Pageable pageable);
-
-//    Page<Booking> findBookingByItemOwnerAndStartIsAfter(Long bookerId, LocalDateTime now, Pageable pageable);
-
-//    Page<Booking> findBookingByItemOwnerAndEndIsBefore(Long bookerId, LocalDateTime now, Pageable pageable);
 
     Page<Booking> findBookingByItemOwnerAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
