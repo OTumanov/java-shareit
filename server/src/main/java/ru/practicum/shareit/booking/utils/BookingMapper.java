@@ -47,6 +47,7 @@ public class BookingMapper {
         dto.setItem(booking.getItem());
         dto.setName(booking.getItem().getName());
         dto.setBooker(booking.getBooker());
+        System.out.println("toBookingDtoFromBooking: " + dto);
         return dto;
     }
 

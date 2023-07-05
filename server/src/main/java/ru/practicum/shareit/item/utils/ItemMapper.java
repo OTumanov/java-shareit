@@ -17,11 +17,12 @@ public class ItemMapper {
     public static ItemDto toDto(Item item, List<Comment> comments) {
         ItemDto dto = new ItemDto();
         dto.setId(item.getId());
+        dto.setOwner(item.getOwner());
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
         if (comments != null) {
-            dto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
+            dto.setComments(CommentMapper.toCommentDtoList(comments));
         }
         dto.setRequestId(item.getRequestId());
         return dto;
@@ -30,14 +31,19 @@ public class ItemMapper {
     public static ItemDto toDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments) {
         ItemDto dto = new ItemDto();
         dto.setId(item.getId());
+        dto.setOwner(item.getOwner());
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
         dto.setLastBooking(BookingMapper.toBookingDtoFromBooking(lastBooking));
+        System.out.println(BookingMapper.toBookingDtoFromBooking(lastBooking));
         dto.setNextBooking(BookingMapper.toBookingDtoFromBooking(nextBooking));
+        System.out.println(BookingMapper.toBookingDtoFromBooking(nextBooking));
         if (comments != null) {
-            dto.setComments(CommentMapper.toCommentDetailedDtoList(comments));
+            dto.setComments(CommentMapper.toCommentDtoList(comments));
         }
+
+        System.out.println("toDto: " + dto);
         return dto;
     }
 
@@ -66,5 +72,15 @@ public class ItemMapper {
         return items.stream()
                 .map(ItemMapper::toRequestItemDto)
                 .collect(Collectors.toList());
+    }
+
+    public static ItemDto toDto(Item item) {
+        ItemDto dto = new ItemDto();
+        dto.setId(item.getId());
+        dto.setOwner(item.getOwner());
+        dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
+        dto.setAvailable(item.getAvailable());
+        return dto;
     }
 }

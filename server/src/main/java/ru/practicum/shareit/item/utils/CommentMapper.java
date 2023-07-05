@@ -2,13 +2,10 @@ package ru.practicum.shareit.item.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
-import ru.practicum.shareit.item.dto.CreateCommentDto;
-import ru.practicum.shareit.item.dto.DetailedCommentDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +13,7 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentMapper {
-    public static Comment toModel(CreateCommentDto dto, Item item, User author) {
+    public static Comment toModel(CommentDto dto, Item item, User author) {
         Comment comment = new Comment();
         comment.setText(dto.getText());
         comment.setItem(item);
@@ -25,8 +22,8 @@ public class CommentMapper {
         return comment;
     }
 
-    public static DetailedCommentDto toCommentDetailedDto(Comment comment) {
-        DetailedCommentDto dto = new DetailedCommentDto();
+    public static CommentDto toDto(Comment comment) {
+        CommentDto dto = new CommentDto();
         dto.setId(comment.getId());
         dto.setText(comment.getText());
         dto.setAuthorName(comment.getAuthor().getName());
@@ -34,9 +31,9 @@ public class CommentMapper {
         return dto;
     }
 
-    public static List<DetailedCommentDto> toCommentDetailedDtoList(List<Comment> comments) {
+    public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
         return comments.stream()
-                .map(CommentMapper::toCommentDetailedDto)
+                .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
     }
 }
