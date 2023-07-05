@@ -21,6 +21,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,38 +95,37 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findAllByBooker(String stateValue, Long userId, int from, int size) {
+    public List<BookingDto> findAllByBooker(String state, Long userId, int from, int size) {
         checkIfUserExists(userId);
-        State status = parseState(stateValue);
+        List<Booking> bookings = null;
+        State status = parseState(state);
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = new ArrayList<>();
+        Sort sort = Sort.by("start").descending();
 
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
+        Pageable pageable = PageRequest.of(from / size, size, sort);
 
         switch (status) {
             case REJECTED:
-                bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, REJECTED, pageable).toList();
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, REJECTED, pageable).toList();
                 break;
             case WAITING:
-                bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, WAITING, pageable).toList();
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, WAITING, pageable).toList();
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdCurrent(userId, now, pageable).toList();
                 break;
             case FUTURE:
-                bookings = bookingRepository
-                        .findByBookerIdAndStartIsAfter(userId, now, pageable).toList();
+                bookings = bookingRepository.findByBookerIdAndStartIsAfter(userId, now, pageable).toList();
                 break;
             case PAST:
-                bookings = bookingRepository
-                        .findByBookerIdAndEndIsBefore(userId, now, pageable).toList();
+                bookings = bookingRepository.findByBookerIdAndEndIsBefore(userId, now, pageable).toList();
                 break;
             case ALL:
                 bookings = bookingRepository.findByBookerId(userId, pageable).toList();
                 break;
         }
+
+        System.out.println(bookings);
         return BookingMapper.toListDetailedDto(bookings);
     }
 
@@ -140,27 +140,22 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case REJECTED:
-                bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, REJECTED, pageable).toList();
+                bookings = bookingRepository.findBookingByItemOwnerAndStatus(userId, REJECTED, pageable).toList();
                 break;
             case WAITING:
-                bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, WAITING, pageable).toList();
+                bookings = bookingRepository.findBookingByItemOwnerAndStatus(userId, WAITING, pageable).toList();
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now, pageable).toList();
                 break;
             case FUTURE:
-                bookings = bookingRepository
-                        .findBookingByItemOwnerAndStartIsAfter(userId, now, pageable).toList();
+                bookings = bookingRepository.findBookingByItemOwnerAndStartIsAfter(userId, now, pageable).toList();
                 break;
             case PAST:
-                bookings = bookingRepository
-                        .findBookingByItemOwnerAndEndIsBefore(userId, now, pageable).toList();
+                bookings = bookingRepository.findBookingByItemOwnerAndEndIsBefore(userId, now, pageable).toList();
                 break;
             case ALL:
-                bookings = bookingRepository
-                        .findBookingByItemOwner(userId, pageable).toList();
+                bookings = bookingRepository.findBookingByItemOwner(userId, pageable).toList();
                 break;
         }
         return BookingMapper.toListDetailedDto(bookings);
@@ -182,5 +177,15 @@ public class BookingServiceImpl implements BookingService {
 
     private BookingStatus convertToStatus(Boolean approved) {
         return approved ? BookingStatus.APPROVED : REJECTED;
+    }
+
+    private void checkPageAndSize(Integer page, Integer size) {
+        if (page < 0 || size < 0) {
+            throw new ValidationException("Параметры не могут быть меньше ноля");
+        }
+    }
+
+    private void checkUser(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 }

@@ -38,7 +38,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "and b.start < ?2 " +
             "and b.end > ?2 " +
             "order by b.start asc ")
-    Page<Booking> findByBookerIdCurrent(Long userId,LocalDateTime now, Pageable pageable);
+    Page<Booking> findByBookerIdCurrent(Long userId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from bookings b " +
             "where b.item.owner = ?1 " +
@@ -52,4 +52,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             " and b.booker.id = ?2" +
             " and b.end < ?3")
     List<Booking> findBookingsForAddComments(Long itemId, Long userId, LocalDateTime now);
+
+    List<Booking> findAllBookingsByItemId(Long id);
 }

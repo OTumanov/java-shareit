@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.model.CommentException;
-import ru.practicum.shareit.exceptions.model.DeniedAccessException;
-import ru.practicum.shareit.exceptions.model.OwnerNotFoundException;
+import ru.practicum.shareit.booking.utils.BookingStatus;
+import ru.practicum.shareit.exceptions.model.*;
 import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.DetailedCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -27,6 +26,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,14 +86,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto findItemById(Long itemId, Long userId) {
-        Item item = itemRepository.findById(itemId).orElseThrow();
-        List<Comment> comments = commentRepository.findByItemId(itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new UserNotFoundException("Вещь не найдена"));
+        List<Comment> comments = commentRepository.findAllCommentsByItemId(item.getId());
 
         if (item.getOwner().equals(userId)) {
-            LocalDateTime now = LocalDateTime.now();
-            Sort sortDesc = Sort.by("start").descending();
-            return constructItemDtoForOwner(item, now, sortDesc, comments);
+            return setBookingToItems(item, comments);
         }
+
         return ItemMapper.toDto(item, null, null, comments);
     }
 
@@ -191,9 +190,43 @@ public class ItemServiceImpl implements ItemService {
         Booking nextBooking = bookingRepository.findBookingByItemIdAndStartAfter(item.getId(), now, sort)
                 .stream().findFirst().orElse(null);
 
-        return ItemMapper.toDto(item,
-                lastBooking,
-                nextBooking,
-                comments);
+        return ItemMapper.toDto(item, lastBooking, nextBooking, comments);
+    }
+
+
+    private void fillItemAdvancedList(List<ItemDto> result, List<Item> foundItems, Long userId) {
+        for (Item item : foundItems) {
+            List<Comment> comments = commentRepository.findAllCommentsByItemId(item.getId());
+            if (item.getOwner().equals(userId)) {
+                ItemDto itemDto = setBookingToItems(item, comments);
+                result.add(itemDto);
+            } else {
+                result.add(ItemMapper.toDto(item, null, null, comments));
+            }
+        }
+    }
+
+
+    private ItemDto setBookingToItems(Item item, List<Comment> comments) {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = bookingRepository.findAllBookingsByItemId(item.getId());
+        Booking lastBooking = bookings.stream()
+                .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
+                .filter(obj -> obj.getStart().isBefore(now))
+                .min((obj1, obj2) -> obj2.getStart().compareTo(obj1.getStart())).orElse(null);
+        Booking nextBooking = bookings.stream()
+                .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
+                .filter(obj -> obj.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart)).orElse(null);
+
+        System.out.println("last" + lastBooking);
+        System.out.println("next" + nextBooking);
+
+        return ItemMapper.toDto(item, lastBooking, nextBooking, comments);
+    }
+
+    private Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь не найдена"));
     }
 }
