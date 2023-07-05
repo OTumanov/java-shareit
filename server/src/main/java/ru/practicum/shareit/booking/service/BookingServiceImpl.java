@@ -76,7 +76,7 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(status);
         booking = bookingRepository.save(booking);
-        return BookingMapper.toResponseDto(booking, booking.getBooker(), item);
+        return BookingMapper.toBookingDtoFromBooking(booking, booking.getBooker(), item);
     }
 
     @Override
