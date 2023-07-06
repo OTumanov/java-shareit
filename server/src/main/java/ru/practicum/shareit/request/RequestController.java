@@ -11,19 +11,19 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @AllArgsConstructor
-public class ItemRequestController {
+public class RequestController {
 
     private final ItemRequestService service;
-
-    @PostMapping
-    public RequestDto createRequest(@RequestBody RequestDto requestDto,
-                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return service.createRequest(requestDto, userId);
-    }
 
     @GetMapping
     public List<RequestDto> findAllByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return service.findAllByUserId(userId);
+    }
+
+    @GetMapping("/{requestId}")
+    public RequestDto findById(@PathVariable Long requestId,
+                               @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return service.findById(requestId, userId);
     }
 
     @GetMapping("/all")
@@ -33,9 +33,9 @@ public class ItemRequestController {
         return service.findAll(from, size, userId);
     }
 
-    @GetMapping("/{requestId}")
-    public RequestDto findById(@PathVariable Long requestId,
-                               @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return service.findById(requestId, userId);
+    @PostMapping
+    public RequestDto createRequest(@RequestBody RequestDto requestDto,
+                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return service.createRequest(requestDto, userId);
     }
 }

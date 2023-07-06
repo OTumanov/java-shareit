@@ -12,6 +12,7 @@ public interface ItemRequestRepository extends JpaRepository<Request, Long> {
 
     @Query("select r from requests r where r.requestor <> ?1")
     Page<Request> findAll(Long userId, Pageable pageable);
-    List<Request> findRequestByRequestorOrderByCreatedAsc(Long userId);
+    @Query("select r from requests r where r.requestor = ?1 order by r.created DESC")
+    List<Request> findRequestByRequestor(Long userId);
 
 }

@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<RequestDto> findAllByUserId(Long userId) {
         checkUserFound(userId);
-        List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedAsc(userId);
+        List<Request> requests = requestRepository.findRequestByRequestor(userId);
         return RequestMapper.toRequestDtoList(requests, itemRepository);
     }
 
