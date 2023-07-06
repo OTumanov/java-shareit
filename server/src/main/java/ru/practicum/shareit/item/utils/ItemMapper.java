@@ -42,7 +42,6 @@ public class ItemMapper {
             dto.setComments(CommentMapper.toCommentDtoList(comments));
         }
 
-        System.out.println("toDto: " + dto);
         return dto;
     }
 

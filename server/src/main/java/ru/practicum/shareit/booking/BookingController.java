@@ -13,19 +13,6 @@ import java.util.List;
 public class BookingController {
     private BookingService bookingService;
 
-    @PostMapping
-    public BookingDto createBooking(@RequestBody BookingDto dto,
-                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.createBooking(dto, userId);
-    }
-
-    @PatchMapping("/{bookingId}")
-    public BookingDto patchBooking(@PathVariable Long bookingId,
-                                   @RequestParam Boolean approved,
-                                   @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.patchBooking(bookingId, approved, userId);
-    }
-
     @GetMapping("/{bookingId}")
     public BookingDto findById(@PathVariable Long bookingId,
                                @RequestHeader("X-Sharer-User-Id") Long userId) {
@@ -46,5 +33,18 @@ public class BookingController {
                                     @RequestParam(defaultValue = "0") int from,
                                     @RequestParam(defaultValue = "20") int size) {
         return bookingService.findAllByItemOwner(state, userId, from, size);
+    }
+
+    @PostMapping
+    public BookingDto createBooking(@RequestBody BookingDto dto,
+                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return bookingService.createBooking(dto, userId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto patchBooking(@PathVariable Long bookingId,
+                                   @RequestParam Boolean approved,
+                                   @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return bookingService.patchBooking(bookingId, approved, userId);
     }
 }

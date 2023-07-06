@@ -41,7 +41,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto createBooking(BookingDto dto, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
-
         Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new UserNotFoundException("Нет такого вещи!"));
 
         if (userId.equals(item.getOwner())) {
@@ -125,39 +124,6 @@ public class BookingServiceImpl implements BookingService {
         System.out.println(bookings);
         return BookingMapper.toListDetailedDto(bookings);
     }
-
-//    @Override
-//    public List<BookingDto> findAllByItemOwner(String stateValue, Long userId, int from, int size) {
-//        checkIfUserExists(userId);
-//        State state = parseState(stateValue);
-//        LocalDateTime now = LocalDateTime.now();
-//        List<Booking> bookings = new ArrayList<>();
-//
-//        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
-//
-//        switch (state) {
-//            case REJECTED:
-//                bookings = bookingRepository.findBookingByItemOwnerAndStatus(userId, REJECTED, pageable).toList();
-//                break;
-//            case WAITING:
-//                bookings = bookingRepository.findBookingByItemOwnerAndStatus(userId, WAITING, pageable).toList();
-//                break;
-//            case CURRENT:
-//                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now, pageable).toList();
-//                break;
-//            case FUTURE:
-//                bookings = bookingRepository.findBookingByItemOwnerAndStartIsAfter(userId, now, pageable).toList();
-//                break;
-//            case PAST:
-//                bookings = bookingRepository.findBookingByItemOwnerAndEndIsBefore(userId, now, pageable).toList();
-//                break;
-//            case ALL:
-//                bookings = bookingRepository.findBookingByItemOwner(userId, pageable).toList();
-//                break;
-//        }
-//        return BookingMapper.toListDetailedDto(bookings);
-//    }
-
 
     @Override
     public List<BookingDto> findAllByItemOwner(String state, Long userId, int from, int size) {

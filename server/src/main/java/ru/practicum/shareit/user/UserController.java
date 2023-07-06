@@ -14,10 +14,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public UserDto createUser(@RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
-    }
 
     @GetMapping("/{userId}")
     public UserDto findUserById(@PathVariable Long userId) {
@@ -27,6 +23,11 @@ public class UserController {
     @GetMapping
     public List<UserDto> findAllUsers() {
         return userService.findAllUsers();
+    }
+
+    @PostMapping
+    public UserDto createUser(@RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")
