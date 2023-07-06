@@ -35,10 +35,7 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> findAll(int from, int size, Long userId) {
-        Map<String, Object> parameters = Map.of(
-                "from", from,
-                "size", size
-        );
+        Map<String, Object> parameters = Map.of("from", from, "size", size);
         return get("/all?from={from}&size={size}", userId, parameters);
     }
 

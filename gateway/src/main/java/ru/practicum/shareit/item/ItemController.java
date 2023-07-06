@@ -17,73 +17,56 @@ import javax.validation.constraints.NotNull;
 @RequestMapping(path = "/items")
 public class ItemController {
 
-    public static final int MIN_VALUE = 1;
-    public static final String DEFAULT_FROM_VALUE = "0";
-    public static final String DEFAULT_SIZE_VALUE = "20";
-    public static final String USER_ID_HEADER = "X-Sharer-User-Id";
-    public static final String NULL_ITEM_ID_MESSAGE = "itemID is null";
-    public static final String NULL_USER_ID_MESSAGE = "userID is null";
-
     private final ItemClient itemClient;
 
     @PostMapping
     public ResponseEntity<Object> createItem(@Validated({Create.class})
                                              @RequestBody ItemDto itemDto,
-                                             @NotNull(message = (NULL_ITEM_ID_MESSAGE))
-                                             @Min(MIN_VALUE)
-                                             @RequestHeader(USER_ID_HEADER) Long userId) {
+                                             @NotNull(message = ("itemID is null")) @Min(1)
+                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemClient.createItem(itemDto, userId);
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> createComment(@Validated({Update.class})
                                                 @RequestBody CommentDto commentDto,
-                                                @NotNull(message = (NULL_ITEM_ID_MESSAGE))
-                                                @Min(MIN_VALUE)
+                                                @NotNull(message = ("itemID is null")) @Min(1)
                                                 @PathVariable Long itemId,
-                                                @NotNull(message = (NULL_USER_ID_MESSAGE))
-                                                @Min(MIN_VALUE)
-                                                @RequestHeader(USER_ID_HEADER) Long userId) {
+                                                @NotNull(message = ("userID is null")) @Min(1)
+                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemClient.createComment(commentDto, itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@Validated({Update.class})
                                              @RequestBody ItemDto itemDto,
-                                             @NotNull(message = NULL_ITEM_ID_MESSAGE)
-                                             @Min(MIN_VALUE)
+                                             @NotNull(message = "itemID is null") @Min(1)
                                              @PathVariable Long itemId,
-                                             @NotNull(message = NULL_USER_ID_MESSAGE)
-                                             @Min(MIN_VALUE)
-                                             @RequestHeader(USER_ID_HEADER) Long userId) {
+                                             @NotNull(message = "userID is null") @Min(1)
+                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemClient.updateItem(itemDto, itemId, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> findItemById(@NotNull(message = NULL_ITEM_ID_MESSAGE)
-                                               @Min(MIN_VALUE)
+    public ResponseEntity<Object> findItemById(@NotNull(message = "itemID is null") @Min(1)
                                                @PathVariable Long itemId,
-                                               @RequestHeader(USER_ID_HEADER) Long userId) {
+                                               @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemClient.findItemById(itemId, userId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> findAllItems(@NotNull(message = NULL_USER_ID_MESSAGE)
-                                               @RequestHeader(USER_ID_HEADER) Long userId,
-                                               @RequestParam(defaultValue = DEFAULT_FROM_VALUE)
-                                               @Min(MIN_VALUE) int from,
-                                               @RequestParam(defaultValue = DEFAULT_SIZE_VALUE)
-                                               @Min(MIN_VALUE) int size) {
+    public ResponseEntity<Object> findAllItems(@NotNull(message = "userID is null")
+                                               @RequestHeader("X-Sharer-User-Id") Long userId,
+                                               @RequestParam(defaultValue = "0") @Min(1) int from,
+                                               @RequestParam(defaultValue = "20") @Min(1) int size) {
         return itemClient.findAllItems(userId, from, size);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> findItemsByRequest(@RequestParam String text,
-                                                     @RequestHeader(USER_ID_HEADER) Long userId,
-                                                     @RequestParam(defaultValue = DEFAULT_FROM_VALUE)
-                                                     @Min(MIN_VALUE) int from,
-                                                     @RequestParam(defaultValue = DEFAULT_SIZE_VALUE)
-                                                     @Min(MIN_VALUE) int size) {
+                                                     @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @RequestParam(defaultValue = "0") @Min(1) int from,
+                                                     @RequestParam(defaultValue = "20") @Min(1) int size) {
         return itemClient.findItemsByRequest(text, userId, from, size);
     }
 }

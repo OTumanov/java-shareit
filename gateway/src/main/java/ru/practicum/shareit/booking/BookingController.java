@@ -20,10 +20,35 @@ public class BookingController {
 
     private final BookingClient bookingClient;
 
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<Object> findById(@PathVariable Long bookingId,
+                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Запрос по bookingId={}, userId={}", bookingId, userId);
+        return bookingClient.findById(bookingId, userId);
+    }
+
+    @GetMapping
+    public ResponseEntity<Object> findAllBookings(@RequestParam(defaultValue = "ALL") String state,
+                                                  @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                  @RequestParam(defaultValue = "0") @Min(0) int from,
+                                                  @RequestParam(defaultValue = "20") @PositiveOrZero int size) {
+        log.info("Запрос по state={}, userId={}, from={}, size={}", state, userId, from, size);
+        return bookingClient.findAllByBooker(state, userId, from, size);
+    }
+
+    @GetMapping("/owner")
+    public ResponseEntity<Object> findAllByItemOwner(@RequestParam(defaultValue = "ALL") String state,
+                                                     @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @RequestParam(defaultValue = "0") @Min(0) int from,
+                                                     @RequestParam(defaultValue = "20") @PositiveOrZero int size) {
+        log.info("Запрос от владельца по state={}, userId={}, from={}, size={}", state, userId, from, size);
+        return bookingClient.findAllByItemOwner(state, userId, from, size);
+    }
+
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestBody @Valid BookingDto dto,
                                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Creating booking {}, userId={}", dto, userId);
+        log.info("Создание booking={}. userId={}", dto, userId);
         return bookingClient.createBooking(dto, userId);
     }
 
@@ -31,36 +56,9 @@ public class BookingController {
     public ResponseEntity<Object> patchBooking(@PathVariable Long bookingId,
                                                @RequestParam Boolean approved,
                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Path booking {}, approved={}. userId={}", bookingId, approved, userId);
+        log.info("Аппрув bookingId={}, approved={}, userId={}", bookingId, approved, userId);
         return bookingClient.patchBooking(bookingId, approved, userId);
     }
 
-    @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> findById(@PathVariable Long bookingId,
-                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Get booking {}, userId={}", bookingId, userId);
-        return bookingClient.findById(bookingId, userId);
-    }
 
-    @GetMapping
-    public ResponseEntity<Object> findAllBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                  @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                  @RequestParam(defaultValue = "0")
-                                                  @Min(0) int from,
-                                                  @RequestParam(defaultValue = "20")
-                                                  @PositiveOrZero int size) {
-        log.info("Get booking with state {}, userId={}, from={}, size={}", state, userId, from, size);
-        return bookingClient.findAllByBooker(state, userId, from, size);
-    }
-
-    @GetMapping("/owner")
-    public ResponseEntity<Object> findAllByItemOwner(@RequestParam(defaultValue = "ALL") String state,
-                                                     @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @RequestParam(defaultValue = "0")
-                                                     @Min(0) int from,
-                                                     @RequestParam(defaultValue = "20")
-                                                     @PositiveOrZero int size) {
-        log.info("Get bookings owner with state{}, userId={}, from={}, size={}", state, userId, from, size);
-        return bookingClient.findAllByItemOwner(state, userId, from, size);
-    }
 }

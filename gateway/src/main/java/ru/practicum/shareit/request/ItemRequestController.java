@@ -30,10 +30,8 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> findAll(@RequestParam(defaultValue = "0")
-                                          @Min(0) int from,
-                                          @RequestParam(defaultValue = "20")
-                                          @Min(0) int size,
+    public ResponseEntity<Object> findAll(@RequestParam(defaultValue = "0") @Min(0) int from,
+                                          @RequestParam(defaultValue = "20") @Min(0) int size,
                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         return requestClient.findAll(from, size, userId);
     }

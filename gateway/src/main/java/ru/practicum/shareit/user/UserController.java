@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,9 +18,6 @@ import javax.validation.constraints.NotNull;
 @RequestMapping(path = "/users")
 public class UserController {
 
-    public static final int MIN_ID_VALUE = 1;
-    public static final String NULL_USER_ID_MESSAGE = "userID is null";
-
     private final UserClient userClient;
 
     @PostMapping
@@ -31,8 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> findUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
-                                               @Min(MIN_ID_VALUE)
+    public ResponseEntity<Object> findUserById(@NotNull(message = ("userID is null")) @Min(1)
                                                @PathVariable Long userId) {
         log.info("Searching userId={}", userId);
         return userClient.findUserById(userId);
@@ -45,8 +40,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@NotNull(message = NULL_USER_ID_MESSAGE)
-                                             @Min(MIN_ID_VALUE)
+    public ResponseEntity<Object> updateUser(@NotNull(message = "userID is null") @Min(1)
                                              @PathVariable Long userId,
                                              @Validated({Update.class})
                                              @RequestBody UserDto userDto) {
@@ -55,8 +49,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
-                               @Min(MIN_ID_VALUE)
+    public void deleteUserById(@NotNull(message = ("userID is null")) @Min(1)
                                @PathVariable Long userId) {
         log.info("Deleting userId={}", userId);
         userClient.deleteUserById(userId);
