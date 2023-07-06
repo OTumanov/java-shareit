@@ -82,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto findById(Long bookingId, Long userId) {
-        checkIfUserExists(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow();
         Long itemOwner = booking.getItem().getOwner();
         Long bookingOwner = booking.getBooker().getId();
@@ -96,13 +96,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> findAllByBooker(String state, Long userId, int from, int size) {
-        checkIfUserExists(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         List<Booking> bookings = new ArrayList<>();
         State status = parseState(state);
-        LocalDateTime now = LocalDateTime.now();
         Sort sort = Sort.by("start").descending();
-
         Pageable pageable = PageRequest.of(from / size, size, sort);
+        LocalDateTime now = LocalDateTime.now();
 
         switch (status) {
             case REJECTED:
@@ -164,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> findAllByItemOwner(String state, Long userId, int from, int size) {
-        checkUser(userId);
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         checkPageAndSize(from, size);
         List<Booking> bookings;
         State status = parseState(state);
@@ -198,11 +197,6 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toListDetailedDto(bookings);
     }
 
-
-    private void checkIfUserExists(Long userId) {
-        userRepository.findById(userId).orElseThrow();
-    }
-
     private State parseState(String state) {
         State status;
         try {
@@ -219,9 +213,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void checkUser(Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-    }
     private BookingStatus convertToStatus(Boolean approved) {
         return approved ? BookingStatus.APPROVED : REJECTED;
     }

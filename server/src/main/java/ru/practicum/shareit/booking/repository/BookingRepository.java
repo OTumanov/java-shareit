@@ -25,11 +25,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findBookingByItemIdAndStartAfter(Long itemId, LocalDateTime now, Sort sort);
 
+//    @Query("select b from bookings b " +
+//            "where b.booker.id = ?1 " +
+//            "and b.start < ?2 " +
+//            "and b.end > ?2 " +
+//            "order by b.start asc ")
+//    Page<Booking> findByBookerIdCurrent(Long userId, LocalDateTime now, Pageable pageable);
+
     @Query("select b from bookings b " +
             "where b.booker.id = ?1 " +
             "and b.start < ?2 " +
             "and b.end > ?2 " +
-            "order by b.start asc ")
+            "order by b.start desc ")
     Page<Booking> findByBookerIdCurrent(Long userId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from bookings b " +

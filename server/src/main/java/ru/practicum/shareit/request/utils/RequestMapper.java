@@ -7,11 +7,8 @@ import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
-import ru.practicum.shareit.request.dto.PostRequestDto;
-import ru.practicum.shareit.request.dto.PostResponseRequestDto;
-import ru.practicum.shareit.request.dto.RequestWithItemsDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.model.Request;
-
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,7 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestMapper {
 
-    public static Request toModel(PostRequestDto dto, Long requestor) {
+    public static Request toModel(RequestDto dto, Long requestor) {
         Request request = new Request();
         request.setDescription(dto.getDescription());
         request.setRequestor(requestor);
@@ -29,17 +26,17 @@ public class RequestMapper {
         return request;
     }
 
-    public static PostResponseRequestDto toPostResponseDto(Request request) {
-        PostResponseRequestDto dto = new PostResponseRequestDto();
+    public static RequestDto toDto(Request request) {
+        RequestDto dto = new RequestDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());
         dto.setCreated(request.getCreated());
         return dto;
     }
 
-    public static RequestWithItemsDto toRequestWithItemsDto(Request request, List<Item> items) {
+    public static RequestDto toRequestDto(Request request, List<Item> items) {
         List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
-        RequestWithItemsDto dto = new RequestWithItemsDto();
+        RequestDto dto = new RequestDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());
         dto.setCreated(request.getCreated());
@@ -47,25 +44,26 @@ public class RequestMapper {
         return dto;
     }
 
-    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(Page<Request> requests,
-                                                                      ItemRepository repository) {
+    public static List<RequestDto> toRequestDtoList(Page<Request> requests,
+                                                    ItemRepository repository) {
         return requests.stream()
                 .map((Request request) -> {
                     List<Item> items = repository.findAllByRequestId(request.getId());
-                    return RequestMapper.toRequestWithItemsDto(request, items);
+                    return RequestMapper.toRequestDto(request, items);
                 }).collect(Collectors.toList());
     }
 
-    public static List<RequestWithItemsDto> toRequestWithItemsDtoList(List<Request> requests,
-                                                                      ItemRepository repository) {
-        List<RequestWithItemsDto> result = new ArrayList<>();
+    public static List<RequestDto> toRequestDtoList(List<Request> requests, ItemRepository repository) {
+        List<RequestDto> result = new ArrayList<>();
         if (requests != null && !requests.isEmpty()) {
             for (Request request : requests) {
                 List<Item> items = repository.findAllByRequestId(request.getId());
-                RequestWithItemsDto requestDto = RequestMapper.toRequestWithItemsDto(request, items);
+                RequestDto requestDto = RequestMapper.toRequestDto(request, items);
                 result.add(requestDto);
             }
         }
+
+        System.out.println(result);
         return result;
     }
 }

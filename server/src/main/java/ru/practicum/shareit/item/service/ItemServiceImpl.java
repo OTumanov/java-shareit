@@ -143,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь не найдена"));
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         if (commentDto.getText() == null || commentDto.getText().isBlank() || commentDto.getText().isEmpty()) {
-            throw new ValidationException("Комментарий не может быть пустым");
+            throw new CommentException("Комментарий не может быть пустым");
         }
         if (bookingRepository.findBookingsForAddComments(itemId, userId, LocalDateTime.now()).isEmpty()) {
             throw new CommentException("Этой вещью вы не пользовались или не закончился срок аренды!");
@@ -200,9 +200,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemDto setBookingToItems(Item item, List<Comment> comments) {
-        LocalDateTime now = LocalDateTime.now();
 
         List<Booking> bookings = bookingRepository.findAllBookingsByItemId(item.getId());
+        LocalDateTime now = LocalDateTime.now();
         Booking lastBooking = bookings.stream()
                 .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
                 .filter(obj -> obj.getStart().isBefore(now))

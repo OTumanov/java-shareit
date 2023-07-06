@@ -7,11 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.model.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.PostRequestDto;
-import ru.practicum.shareit.request.dto.PostResponseRequestDto;
-import ru.practicum.shareit.request.dto.RequestWithItemsDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.utils.RequestMapper;
@@ -33,37 +32,33 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public PostResponseRequestDto createRequest(PostRequestDto dto, Long userId) {
-        checkIfUserExists(userId);
-        Request request  = RequestMapper.toModel(dto, userId);
+    public RequestDto createRequest(RequestDto dto, Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
+        Request request = RequestMapper.toModel(dto, userId);
         request = requestRepository.save(request);
-        return RequestMapper.toPostResponseDto(request);
+        return RequestMapper.toDto(request);
     }
 
     @Override
-    public List<RequestWithItemsDto> findAllByUserId(Long userId) {
-        checkIfUserExists(userId);
+    public List<RequestDto> findAllByUserId(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
-        return RequestMapper.toRequestWithItemsDtoList(requests, itemRepository);
+        return RequestMapper.toRequestDtoList(requests, itemRepository);
     }
 
     @Override
-    public List<RequestWithItemsDto> findAll(int from, int size, Long userId) {
-        checkIfUserExists(userId);
+    public List<RequestDto> findAll(int from, int size, Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         Pageable pageable = PageRequest.of(from / size, size, SORT);
         Page<Request> requests = requestRepository.findAll(userId, pageable);
-        return RequestMapper.toRequestWithItemsDtoList(requests, itemRepository);
+        return RequestMapper.toRequestDtoList(requests, itemRepository);
     }
 
     @Override
-    public RequestWithItemsDto findById(Long requestId, Long userId) {
-        checkIfUserExists(userId);
+    public RequestDto findById(Long requestId, Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
         Request request = requestRepository.findById(requestId).orElseThrow();
         List<Item> items = itemRepository.findAllByRequestId(requestId);
-        return RequestMapper.toRequestWithItemsDto(request, items);
-    }
-
-    private void checkIfUserExists(Long userId) {
-        userRepository.findById(userId).orElseThrow();
+        return RequestMapper.toRequestDto(request, items);
     }
 }
