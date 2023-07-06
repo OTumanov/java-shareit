@@ -1,7 +1,7 @@
 package ru.practicum.shareit.exceptions.model;
 
-public class BookingNotFoundException extends  RuntimeException{
+public class BookingNotFoundException extends RuntimeException {
     public BookingNotFoundException(String message) {
-    super(message);
+        super(message);
     }
 }
