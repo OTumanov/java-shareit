@@ -36,6 +36,7 @@ public class RequestMapper {
 
     public static RequestDto toRequestDto(Request request, List<Item> items) {
         List<ItemDto> itemDtos = ItemMapper.toItemDtoList(items);
+        System.out.println("itemsDto " + itemDtos);
         RequestDto dto = new RequestDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());

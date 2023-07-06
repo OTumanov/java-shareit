@@ -8,8 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
@@ -58,7 +58,7 @@ public class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
         ItemDto dto = new ItemDto();
-        dto.setId(item.getOwner());
+        dto.setId(item.getId());
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
@@ -68,9 +68,11 @@ public class ItemMapper {
     }
 
     public static List<ItemDto> toItemDtoList(List<Item> items) {
-        return items.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        List<ItemDto> itemDtos = new ArrayList<>();
+        for (Item item : items) {
+            itemDtos.add(toItemDto(item));
+        }
+        return itemDtos;
     }
 
     public static ItemDto toDto(Item item) {
