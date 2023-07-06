@@ -23,6 +23,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(BookingNotFoundException e) {
+        log.warn("Бронь не найдена ", e);
+        return new ErrorResponse("Нет такого бронирования", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(UserNotFoundException e) {
         log.warn("Не найден юзер ", e);
         return new ErrorResponse("Нет такого пользователя! ", e.getMessage());

@@ -12,10 +12,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.booking.utils.BookingStatus;
 import ru.practicum.shareit.booking.utils.State;
-import ru.practicum.shareit.exceptions.model.InvalidBookingException;
-import ru.practicum.shareit.exceptions.model.UnavailableBookingException;
-import ru.practicum.shareit.exceptions.model.UnsupportedStatusException;
-import ru.practicum.shareit.exceptions.model.UserNotFoundException;
+import ru.practicum.shareit.exceptions.model.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -57,14 +54,14 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = BookingMapper.toModel(dto, item, user);
         booking = bookingRepository.save(booking);
-        return BookingMapper.bookingDto(booking);
+        return BookingMapper.toDto(booking);
     }
 
     @Override
     @Transactional
     public BookingDto patchBooking(Long bookingId, Boolean approved, Long userId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
-        Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException("Нет такого бронирования!"));
+        Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow(() -> new ItemNotFoundException("Нет такого вещи!"));
 
         if (!item.getOwner().equals(userId)) {
             throw new NoSuchElementException("Этот пользователь " + userId + " не владелец вещи " + item.getId());
@@ -77,7 +74,8 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(status);
         booking = bookingRepository.save(booking);
-        return BookingMapper.toBookingDtoFromBooking(booking, booking.getBooker(), item);
+
+        return BookingMapper.toDto(booking);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class BookingServiceImpl implements BookingService {
         if (!itemOrBookingOwner) {
             throw new NoSuchElementException("Пользователь " + userId + " не является владельцем вещи");
         }
-        return BookingMapper.toBookingDtoFromBooking(booking);
+        return BookingMapper.toDto(booking);
     }
 
     @Override

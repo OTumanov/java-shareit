@@ -34,10 +34,10 @@ public class ItemMapper {
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
-        dto.setLastBooking(BookingMapper.toBookingDtoFromBooking(lastBooking));
-        System.out.println(BookingMapper.toBookingDtoFromBooking(lastBooking));
-        dto.setNextBooking(BookingMapper.toBookingDtoFromBooking(nextBooking));
-        System.out.println(BookingMapper.toBookingDtoFromBooking(nextBooking));
+        dto.setLastBooking(BookingMapper.toDto(lastBooking));
+        System.out.println(BookingMapper.toDto(lastBooking));
+        dto.setNextBooking(BookingMapper.toDto(nextBooking));
+        System.out.println(BookingMapper.toDto(nextBooking));
         if (comments != null) {
             dto.setComments(CommentMapper.toCommentDtoList(comments));
         }
