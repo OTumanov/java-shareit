@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.PostRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.validation.Create;
 
 import javax.validation.constraints.Min;
@@ -24,9 +24,9 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> createRequest(@Validated({Create.class})
-                                                @RequestBody PostRequestDto postRequestDto,
+                                                @RequestBody RequestDto requestDto,
                                                 @RequestHeader(USER_ID_HEADER) Long userId) {
-        return requestClient.createRequest(postRequestDto, userId);
+        return requestClient.createRequest(requestDto, userId);
     }
 
     @GetMapping
@@ -34,7 +34,7 @@ public class ItemRequestController {
         return requestClient.findAllByUserId(userId);
     }
 
-    @GetMapping ("/all")
+    @GetMapping("/all")
     public ResponseEntity<Object> findAll(@RequestParam(defaultValue = DEFAULT_FROM_VALUE)
                                           @Min(MIN_VALUE) int from,
                                           @RequestParam(defaultValue = DEFAULT_SIZE_VALUE)

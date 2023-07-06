@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CreateCommentDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.validation.Create;
 import ru.practicum.shareit.validation.Update;
@@ -37,7 +37,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> createComment(@Validated({Update.class})
-                                                @RequestBody CreateCommentDto commentDto,
+                                                @RequestBody CommentDto commentDto,
                                                 @NotNull(message = (NULL_ITEM_ID_MESSAGE))
                                                 @Min(MIN_VALUE)
                                                 @PathVariable Long itemId,

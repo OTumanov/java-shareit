@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostRequestDto {
+public class RequestDto {
     @NotBlank(groups = Create.class)
     private String description;
 }

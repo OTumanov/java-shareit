@@ -3,7 +3,7 @@ package ru.practicum.shareit.request.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
-import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
@@ -35,7 +35,7 @@ public class RequestMapper {
     }
 
     public static RequestDto toRequestDto(Request request, List<Item> items) {
-        List<ItemInRequestDto> itemDtos = ItemMapper.toRequestItemDtoList(items);
+        List<ItemDto> itemDtos = ItemMapper.toItemDtoList(items);
         RequestDto dto = new RequestDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());

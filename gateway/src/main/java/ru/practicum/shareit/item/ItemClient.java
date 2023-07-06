@@ -8,7 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.item.dto.CreateCommentDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public class ItemClient extends BaseClient {
         return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> createComment(CreateCommentDto commentDto, Long itemId, Long userId) {
+    public ResponseEntity<Object> createComment(CommentDto commentDto, Long itemId, Long userId) {
         return post("/" + itemId + "/comment", userId, commentDto);
     }
 

@@ -33,7 +33,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public RequestDto createRequest(RequestDto dto, Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
+        checkUserFound(userId);
         Request request = RequestMapper.toModel(dto, userId);
         request = requestRepository.save(request);
         return RequestMapper.toDto(request);
@@ -41,14 +41,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<RequestDto> findAllByUserId(Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
-        List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
+        checkUserFound(userId);
+        List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedAsc(userId);
         return RequestMapper.toRequestDtoList(requests, itemRepository);
     }
 
     @Override
     public List<RequestDto> findAll(int from, int size, Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
+        checkUserFound(userId);
         Pageable pageable = PageRequest.of(from / size, size, SORT);
         Page<Request> requests = requestRepository.findAll(userId, pageable);
         return RequestMapper.toRequestDtoList(requests, itemRepository);
@@ -56,9 +56,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public RequestDto findById(Long requestId, Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
+        checkUserFound(userId);
         Request request = requestRepository.findById(requestId).orElseThrow();
         List<Item> items = itemRepository.findAllByRequestId(requestId);
         return RequestMapper.toRequestDto(request, items);
+    }
+
+
+    private void checkUserFound(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Нет такого пользователя!"));
     }
 }

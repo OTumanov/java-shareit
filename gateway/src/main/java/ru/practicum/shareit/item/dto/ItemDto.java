@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.booking.dto.BookingInItemDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.validation.Create;
 
 import javax.validation.constraints.NotBlank;
@@ -24,8 +24,8 @@ public class ItemDto {
     private String description;
     @NotNull(groups = Create.class)
     private Boolean available;
-    private BookingInItemDto lastBooking;
-    private BookingInItemDto nextBooking;
-    private List<DetailedCommentDto> comments;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
+    private List<CommentDto> comments;
     private Long requestId;
 }
